@@ -17,7 +17,7 @@ const StudentLoginPage = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/student/login', {
+            const response = await fetch('http://localhost:5000/api/students/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -36,6 +36,10 @@ const StudentLoginPage = () => {
         } catch (error) {
             setError('Login failed: ' + error.message);
         }
+    };
+
+    const handleSignUp = () => {
+        navigate('/student/signup');
     };
 
     return (
@@ -58,6 +62,7 @@ const StudentLoginPage = () => {
                 />
                 <button type="submit">Login</button>
                 {error && <p className="error-message">{error}</p>}
+                <button type="button" onClick={handleSignUp} className="signup-button">Sign Up</button>
             </form>
         </div>
     );
