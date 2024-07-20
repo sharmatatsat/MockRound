@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CollegeProfilePage.css'; // Assuming you have a CSS file for styling
+import './CollegeProfilePage.css'; 
 
 const CollegeProfilePage = () => {
     const [college, setCollege] = useState({
@@ -38,8 +38,7 @@ const CollegeProfilePage = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('College added:', data);
-                // Redirect to a success page or another route if needed
-                navigate('/entries'); // Example, adjust as needed
+                navigate('/entries'); 
             } else {
                 const errorData = await response.json();
                 console.log('Failed to add college:', errorData);
