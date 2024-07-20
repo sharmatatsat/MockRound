@@ -9,6 +9,8 @@ router.post('/signup', register);
 // Login route
 router.post('/login', login);
 
+
+
 router.get('/protected', protect, (req, res) => {
     
     res.json({ message: 'You are authorized to access this route' });

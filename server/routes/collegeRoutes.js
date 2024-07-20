@@ -3,7 +3,7 @@ const router = express.Router();
 const College = require('../models/College');
 const { protect } = require('../middleware/authMiddleware'); // Ensure protect middleware is imported
 
-// Route to create a new college entry
+
 router.post('/add', protect, async (req, res) => {
     const { collegeName, address, coursesAvailable, cutOffSpotRound, casteCategoryCutOff, minStudentCriteria, maxCriteria, spotRoundDates, approvedBy } = req.body;
 
@@ -18,7 +18,7 @@ router.post('/add', protect, async (req, res) => {
             maxCriteria,
             spotRoundDates,
             approvedBy,
-            userId: req.user._id // Associate the college with the logged-in user
+            userId: req.user._id 
         });
 
         await newCollege.save();

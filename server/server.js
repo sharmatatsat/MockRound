@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const collegeRoutes = require('./routes/collegeRoutes');
 const authRoutes = require('./routes/authRoutes');
+const studentRoutes = require('./routes/studentRoutes')
 
 dotenv.config();
 
@@ -18,11 +19,19 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.log(err));
 
-
 app.set('jwt_secret', process.env.JWT_SECRET || 'secretkey');
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);
+app.use('/api/students', studentRoutes);
+// app.use('/api/colleges', collegeRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
