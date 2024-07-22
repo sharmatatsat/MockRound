@@ -12,8 +12,8 @@ function App() {
             <Routes>
                 {/* College Routes */}
                 <Route path="/" element={<CollegeLoginPage />} />
-                <Route path="/college/signup" element={<CollegeSignupPage />} />
-                <Route path="/college/profile" element={<CollegeProfilePage />} />
+                <Route path="/signup" element={<CollegeSignupPage />} />
+                <Route path="/profile" element={<CollegeProfilePage />} />
 
                 {/* Student Routes */}
                 <Route path="/student/login" element={<StudentLoginPage />} />
