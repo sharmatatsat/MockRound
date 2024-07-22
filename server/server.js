@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const collegeRoutes = require('./routes/collegeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes')
+const collegesRoutes = require('./routes/colleges');
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.set('jwt_secret', process.env.JWT_SECRET || 'secretkey');
 app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/collegess', collegesRoutes);
 // app.use('/api/colleges', collegeRoutes);
 
 // Error handling middleware
