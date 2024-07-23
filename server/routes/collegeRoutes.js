@@ -5,20 +5,38 @@ const { protect } = require('../middleware/authMiddleware'); // Ensure protect m
 
 
 router.post('/add', protect, async (req, res) => {
-    const { collegeName, address, coursesAvailable, cutOffSpotRound, casteCategoryCutOff, minStudentCriteria, maxCriteria, spotRoundDates, approvedBy } = req.body;
+    const {
+        collegeName,
+        state,
+        city,
+        address,
+        collegeCode,
+        branch,
+        course,
+        coursesAvailable,
+        minStudentCriteria,
+        maxCriteria,
+        spotRoundDates,
+        casteCategoryCutOff,
+        approvedBy
+    } = req.body;
 
     try {
         const newCollege = new College({
             collegeName,
+            state,
+            city,
             address,
+            collegeCode,
+            branch,
+            course,
             coursesAvailable,
-            cutOffSpotRound,
-            casteCategoryCutOff,
             minStudentCriteria,
             maxCriteria,
             spotRoundDates,
+            casteCategoryCutOff,
             approvedBy,
-            userId: req.user._id 
+            userId: req.user._id // Assuming req.user._id contains the logged-in user ID
         });
 
         await newCollege.save();

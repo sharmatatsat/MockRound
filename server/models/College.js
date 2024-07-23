@@ -9,9 +9,14 @@ const casteCategorySchema = new mongoose.Schema({
 
 const collegeSchema = new mongoose.Schema({
     collegeName: { type: String, required: true },
+    state: { type: String, required: true },
+    city: { type: String, required: true },
     address: { type: String, required: true },
-    coursesAvailable: { type: String, required: true },
-    cutOffSpotRound: { type: Number, required: true },
+    collegeCode: { type: String, required: true },
+    branch: { type: String, },
+    course: { type: String },
+    coursesAvailable: { type: [String], required: true },
+    // cutOffSpotRound: { type: Number }, // Optional
     casteCategoryCutOff: { type: casteCategorySchema, required: true },
     minStudentCriteria: { type: Number, required: true },
     maxCriteria: { type: Number, required: true },
