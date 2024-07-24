@@ -74,3 +74,33 @@
 .colleges-list p {
     margin: 5px 0;
 }
+
+
+.colleges-list {
+    margin-top: 20px;
+}
+
+.colleges-list h2 {
+    text-align: center;
+}
+
+.colleges-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.colleges-list li {
+    border: 1px solid #000000; /* Border color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #f9f9f9; /* Background color */
+}
+
+.colleges-list h3 {
+    margin: 0;
+}
+
+.colleges-list p {
+    margin: 5px 0;
+}
