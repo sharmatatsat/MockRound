@@ -7,7 +7,7 @@ export const states = [
     'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
     'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
     'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-    'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+    'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'UT'
 ];
 
 // Cities by State
@@ -39,6 +39,7 @@ export const cities = {
     'Tripura': ['Agartala', 'Udaipur', 'Ambassa', 'Kailashahar', 'Belonia'],
     'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Meerut', 'Allahabad'],
     'Uttarakhand': ['Dehradun', 'Haridwar', 'Nainital', 'Roorkee', 'Haldwani', 'Rishikesh'],
+    'UT' : ['Andaman & Nicobar Islands','Chandigarh','Delhi','Jammu & Kashmir','Ladakh','Puducherry'],
     'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Kharagpur']
 };
 

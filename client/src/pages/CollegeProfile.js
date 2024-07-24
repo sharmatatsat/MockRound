@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { DeleteIcon } from '@chakra-ui/icons';
 import './CollegeProfilePage.css';
 
-// Import data from data.js
 import { states, cities, branches, courses } from '../data';
 
 const CollegeProfilePage = () => {
@@ -17,6 +16,7 @@ const CollegeProfilePage = () => {
         course: '',
         coursesAvailable: [],
         cutOffSpotRound: '',
+        courseCutoffs: {}, 
         casteCategoryCutOff: {
             ST: '',
             SC: '',
@@ -25,7 +25,7 @@ const CollegeProfilePage = () => {
         },
         minStudentCriteria: '',
         maxCriteria: '',
-        spotRoundDates: '',
+        spotRoundDates: '', 
         approvedBy: ''
     });
 
@@ -72,6 +72,20 @@ const CollegeProfilePage = () => {
         }
     };
 
+    const handleCutoffChange = (e, courseName, category) => {
+        const { value } = e.target;
+        setCollege(prevCollege => ({
+            ...prevCollege,
+            courseCutoffs: {
+                ...prevCollege.courseCutoffs,
+                [courseName]: {
+                    ...prevCollege.courseCutoffs[courseName],
+                    [category]: value
+                }
+            }
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -89,7 +103,8 @@ const CollegeProfilePage = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('College added:', data);
-                navigate('/entries');
+                alert('Registration Successful !'); 
+                // navigate('/entries');
             } else {
                 const errorData = await response.json();
                 console.log('Failed to add college:', errorData);
@@ -104,30 +119,43 @@ const CollegeProfilePage = () => {
             if (manualCourseInput && !college.coursesAvailable.includes(manualCourseInput)) {
                 setCollege(prevCollege => ({
                     ...prevCollege,
-                    coursesAvailable: [...prevCollege.coursesAvailable, manualCourseInput]
+                    coursesAvailable: [...prevCollege.coursesAvailable, manualCourseInput],
+                    courseCutoffs: {
+                        ...prevCollege.courseCutoffs,
+                        [manualCourseInput]: { ST: '', SC: '', OBC: '', General: '' } // Initialize cutoffs for the course
+                    }
                 }));
-                setManualCourseInput(''); // Clear the input after adding
+                setManualCourseInput(''); 
             }
         } else {
             if (courseInput && !college.coursesAvailable.includes(courseInput)) {
                 setCollege(prevCollege => ({
                     ...prevCollege,
-                    coursesAvailable: [...prevCollege.coursesAvailable, courseInput]
+                    coursesAvailable: [...prevCollege.coursesAvailable, courseInput],
+                    courseCutoffs: {
+                        ...prevCollege.courseCutoffs,
+                        [courseInput]: { ST: '', SC: '', OBC: '', General: '' } 
+                    }
                 }));
-                setCourseInput(''); // Clear the input after adding
+                setCourseInput(''); 
             }
         }
     };
 
     const removeCourse = (index) => {
-        setCollege(prevCollege => ({
-            ...prevCollege,
-            coursesAvailable: prevCollege.coursesAvailable.filter((_, i) => i !== index)
-        }));
+        const courseName = college.coursesAvailable[index];
+        setCollege(prevCollege => {
+            const { [courseName]: _, ...remainingCutoffs } = prevCollege.courseCutoffs;
+            return {
+                ...prevCollege,
+                coursesAvailable: prevCollege.coursesAvailable.filter((_, i) => i !== index),
+                courseCutoffs: remainingCutoffs
+            };
+        });
     };
 
     return (
-        <div className="profile-container">
+        <div className="profile-container" style = {{marginTop : "20px"}}>
             <h1 className="profile-heading">College Profile</h1>
             <form onSubmit={handleSubmit} className="profile-form">
                 <input
@@ -196,26 +224,69 @@ const CollegeProfilePage = () => {
                     </select>
                 )}
 
-                <button type="button" className="add-course-btn" style = {{fontSize : "13px"}} onClick={addCourse}>Add Course</button>
+                <button type="button" className="add-course-btn" style={{ fontSize: "15px" }} onClick={addCourse}>Add Course</button>
 
                 <div className="course-list">
                     {college.coursesAvailable.map((course, index) => (
-                        <div key={index} className="course-item" style={{fontWeight : 'bold'}}>
-                            {course}
-                            <button
-                                type="button"
-                                onClick={() => removeCourse(index)}
-                                className="remove-course-btn"
-                                style={{fontSize : '12px' , padding: '4px' , backgroundColor : 'red'}}
-                            >
-                                <DeleteIcon boxSize={12}/>
-                            </button>
+                        <div key={index} className="course-item" style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', margin: '10px 0' }}>
+                            <div className="course-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>{course}</div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeCourse(index)}
+                                    className="remove-course-btn"
+                                    style={{ fontSize: '12px', padding: '4px', backgroundColor: 'red' }}
+                                >
+                                    <DeleteIcon boxSize={12} />
+                                </button>
+                            </div>
+                            <input
+                                type="number"
+                                name={`ST-${course}`}
+                                value={college.courseCutoffs[course]?.ST || ''}
+                                onChange={(e) => handleCutoffChange(e, course, 'ST')}
+                                placeholder="ST Cut-off (%)"
+                                required
+                            />
+                            <input
+                                type="number"
+                                name={`SC-${course}`}
+                                value={college.courseCutoffs[course]?.SC || ''}
+                                onChange={(e) => handleCutoffChange(e, course, 'SC')}
+                                placeholder="SC Cut-off (%)"
+                                required
+                            />
+                            <input
+                                type="number"
+                                name={`OBC-${course}`}
+                                value={college.courseCutoffs[course]?.OBC || ''}
+                                onChange={(e) => handleCutoffChange(e, course, 'OBC')}
+                                placeholder="OBC Cut-off (%)"
+                                required
+                            />
+                            <input
+                                type="number"
+                                name={`General-${course}`}
+                                value={college.courseCutoffs[course]?.General || ''}
+                                onChange={(e) => handleCutoffChange(e, course, 'General')}
+                                placeholder="General Cut-off (%)"
+                                required
+                            />
                         </div>
                     ))}
                 </div>
 
+                {}
+                <input 
+                    type="date"
+                    name="spotRoundDates"
+                    value={college.spotRoundDates}
+                    onChange={handleChange}
+                    required
+                />
+
                 <input
-                    type="number"
+                    type="text"
                     name="minStudentCriteria"
                     value={college.minStudentCriteria}
                     onChange={handleChange}
@@ -223,63 +294,26 @@ const CollegeProfilePage = () => {
                     required
                 />
                 <input
-                    type="number"
+                    type="text"
                     name="maxCriteria"
                     value={college.maxCriteria}
                     onChange={handleChange}
-                    placeholder="Max Student Criteria"
+                    placeholder="Maximum Criteria"
                     required
                 />
-                <input
-                    type="date"
-                    name="spotRoundDates"
-                    value={college.spotRoundDates}
+                <select
+                    name="approvedBy"
+                    value={college.approvedBy}
                     onChange={handleChange}
-                    placeholder="Spot Round Dates"
                     required
-                />
-                <input
-                    type="number"
-                    name="ST"
-                    value={college.casteCategoryCutOff.ST}
-                    onChange={handleChange}
-                    placeholder="ST Cut-off (%)"
-                    required
-                />
-                <input
-                    type="number"
-                    name="SC"
-                    value={college.casteCategoryCutOff.SC}
-                    onChange={handleChange}
-                    placeholder="SC Cut-off (%)"
-                    required
-                />
-                <input
-                    type="number"
-                    name="OBC"
-                    value={college.casteCategoryCutOff.OBC}
-                    onChange={handleChange}
-                    placeholder="OBC Cut-off (%)"
-                    required
-                />
-                <input
-                    type="number"
-                    name="General"
-                    value={college.casteCategoryCutOff.General}
-                    onChange={handleChange}
-                    placeholder="General Cut-off (%)"
-                    required
-                />
-                <select name="approvedBy" value={college.approvedBy} onChange={handleChange} required>
-                    <option value="" disabled>Select Approval Body</option>
-                    <option value="AICTE">AICTE</option>
+                >
+                    <option value="" disabled>Approved By</option>
                     <option value="UGC">UGC</option>
-                    <option value="NIRF">NIRF</option>
+                    <option value="AICTE">AICTE</option>
+                    <option value="NBA">NBA</option>
+                    <option value="Others">Others</option>
                 </select>
-
-                <div className="action-buttons">
-                    <button type="submit" style={{fontSize : "15px" , width : "20%"}}>Save</button>
-                </div>
+                <button type="submit">Submit</button>
             </form>
         </div>
     );
