@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const College = require('../models/College');
-const { protect } = require('../middleware/authMiddleware'); // Ensure protect middleware is imported
-
+const { protect } = require('../middleware/authMiddleware'); 
 
 router.post('/add', protect, async (req, res) => {
     const {
@@ -14,10 +13,11 @@ router.post('/add', protect, async (req, res) => {
         branch,
         course,
         coursesAvailable,
+        courseCutoffs,
         minStudentCriteria,
         maxCriteria,
         spotRoundDates,
-        casteCategoryCutOff,
+        // casteCategoryCutOff,
         approvedBy
     } = req.body;
 
@@ -31,12 +31,13 @@ router.post('/add', protect, async (req, res) => {
             branch,
             course,
             coursesAvailable,
+            courseCutoffs,
             minStudentCriteria,
             maxCriteria,
             spotRoundDates,
-            casteCategoryCutOff,
+            // casteCategoryCutOff,
             approvedBy,
-            userId: req.user._id // Assuming req.user._id contains the logged-in user ID
+            userId: req.user._id 
         });
 
         await newCollege.save();
