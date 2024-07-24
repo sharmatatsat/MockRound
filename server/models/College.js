@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Define the schema for caste category cutoffs
+
 const casteCategorySchema = new mongoose.Schema({
     ST: { type: Number, required: true },
     SC: { type: Number, required: true },
@@ -8,7 +8,7 @@ const casteCategorySchema = new mongoose.Schema({
     General: { type: Number, required: true }
 });
 
-// Define the schema for course cutoffs
+
 const courseCutoffSchema = new mongoose.Schema({
     ST: { type: Number, required: true },
     SC: { type: Number, required: true },
@@ -16,7 +16,7 @@ const courseCutoffSchema = new mongoose.Schema({
     General: { type: Number, required: true }
 });
 
-// Define the schema for the college
+
 const collegeSchema = new mongoose.Schema({
     collegeName: { type: String, required: true },
     state: { type: String, required: true },
