@@ -34,6 +34,7 @@ const CollegeProfilePage = () => {
     const [courseInput, setCourseInput] = useState('');
     const [manualCourseInput, setManualCourseInput] = useState('');
     const [isOthersBranch, setIsOthersBranch] = useState(false);
+    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -56,20 +57,35 @@ const CollegeProfilePage = () => {
         const { name, value, type } = e.target;
         const parsedValue = type === 'number' ? parseFloat(value) : value;
 
+        let newValue = parsedValue;
+        let error = '';
+
+        // Validate positive integers for minStudentCriteria and maxCriteria
+        if (name === 'minStudentCriteria' || name === 'maxCriteria') {
+            if (!Number.isInteger(Number(value)) || Number(value) <= 0) {
+                error = 'Must be a positive integer';
+            }
+        }
+
         if (['ST', 'SC', 'OBC', 'General'].includes(name)) {
             setCollege(prevCollege => ({
                 ...prevCollege,
                 casteCategoryCutOff: {
                     ...prevCollege.casteCategoryCutOff,
-                    [name]: parsedValue
+                    [name]: newValue
                 }
             }));
         } else {
             setCollege(prevCollege => ({
                 ...prevCollege,
-                [name]: parsedValue
+                [name]: newValue
             }));
         }
+
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: error
+        }));
     };
 
     const handleCutoffChange = (e, courseName, category) => {
@@ -90,6 +106,24 @@ const CollegeProfilePage = () => {
         e.preventDefault();
         const token = localStorage.getItem('token');
 
+        // Perform final validation
+        let hasErrors = false;
+        const newErrors = {};
+
+        if (!Number.isInteger(Number(college.minStudentCriteria)) || Number(college.minStudentCriteria) <= 0) {
+            newErrors.minStudentCriteria = 'Must be a positive integer';
+            hasErrors = true;
+        }
+
+        if (!Number.isInteger(Number(college.maxCriteria)) || Number(college.maxCriteria) <= 0) {
+            newErrors.maxCriteria = 'Must be a positive integer';
+            hasErrors = true;
+        }
+
+        setErrors(newErrors);
+
+        if (hasErrors) return;
+
         try {
             const response = await fetch('http://localhost:5000/api/colleges/add', {
                 method: 'POST',
@@ -103,7 +137,7 @@ const CollegeProfilePage = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('College added:', data);
-                alert('Registration Successful !'); 
+                alert('Registration Successful!');
                 // navigate('/entries');
             } else {
                 const errorData = await response.json();
@@ -122,7 +156,7 @@ const CollegeProfilePage = () => {
                     coursesAvailable: [...prevCollege.coursesAvailable, manualCourseInput],
                     courseCutoffs: {
                         ...prevCollege.courseCutoffs,
-                        [manualCourseInput]: { ST: '', SC: '', OBC: '', General: '' } // Initialize cutoffs for the course
+                        [manualCourseInput]: { ST: '', SC: '', OBC: '', General: '' } 
                     }
                 }));
                 setManualCourseInput(''); 
@@ -155,7 +189,7 @@ const CollegeProfilePage = () => {
     };
 
     return (
-        <div className="profile-container" style = {{marginTop : "20px"}}>
+        <div className="profile-container" style={{ marginTop: "20px" }}>
             <h1 className="profile-heading">College Profile</h1>
             <form onSubmit={handleSubmit} className="profile-form">
                 <input
@@ -166,20 +200,23 @@ const CollegeProfilePage = () => {
                     placeholder="College Name"
                     required
                 />
-                
+                {errors.collegeName && <div className="error-message">{errors.collegeName}</div>}
+
                 <select name="state" value={college.state} onChange={handleChange} required>
                     <option value="" disabled>Select State</option>
                     {states.map(state => (
                         <option key={state} value={state}>{state}</option>
                     ))}
                 </select>
-                
+                {errors.state && <div className="error-message">{errors.state}</div>}
+
                 <select name="city" value={college.city} onChange={handleChange} required>
                     <option value="" disabled>Select City</option>
                     {availableCities.map(city => (
                         <option key={city} value={city}>{city}</option>
                     ))}
                 </select>
+                {errors.city && <div className="error-message">{errors.city}</div>}
 
                 <input
                     type="text"
@@ -189,6 +226,8 @@ const CollegeProfilePage = () => {
                     placeholder="Address"
                     required
                 />
+                {errors.address && <div className="error-message">{errors.address}</div>}
+
                 <input
                     type="text"
                     name="collegeCode"
@@ -197,13 +236,15 @@ const CollegeProfilePage = () => {
                     placeholder="College Code"
                     required
                 />
-                
+                {errors.collegeCode && <div className="error-message">{errors.collegeCode}</div>}
+
                 <select name="branch" value={college.branch} onChange={handleChange} required>
                     <option value="" disabled>Select Branch</option>
                     {branches.concat('Others').map(branch => (
                         <option key={branch} value={branch}>{branch}</option>
                     ))}
                 </select>
+                {errors.branch && <div className="error-message">{errors.branch}</div>}
 
                 {isOthersBranch && (
                     <input
@@ -223,6 +264,7 @@ const CollegeProfilePage = () => {
                         ))}
                     </select>
                 )}
+                {errors.course && <div className="error-message">{errors.course}</div>}
 
                 <button type="button" className="add-course-btn" style={{ fontSize: "15px" }} onClick={addCourse}>Add Course</button>
 
@@ -248,6 +290,7 @@ const CollegeProfilePage = () => {
                                 placeholder="ST Cut-off (%)"
                                 required
                             />
+                            {errors[`ST-${course}`] && <div className="error-message">{errors[`ST-${course}`]}</div>}
                             <input
                                 type="number"
                                 name={`SC-${course}`}
@@ -256,6 +299,7 @@ const CollegeProfilePage = () => {
                                 placeholder="SC Cut-off (%)"
                                 required
                             />
+                            {errors[`SC-${course}`] && <div className="error-message">{errors[`SC-${course}`]}</div>}
                             <input
                                 type="number"
                                 name={`OBC-${course}`}
@@ -264,6 +308,7 @@ const CollegeProfilePage = () => {
                                 placeholder="OBC Cut-off (%)"
                                 required
                             />
+                            {errors[`OBC-${course}`] && <div className="error-message">{errors[`OBC-${course}`]}</div>}
                             <input
                                 type="number"
                                 name={`General-${course}`}
@@ -272,18 +317,19 @@ const CollegeProfilePage = () => {
                                 placeholder="General Cut-off (%)"
                                 required
                             />
+                            {errors[`General-${course}`] && <div className="error-message">{errors[`General-${course}`]}</div>}
                         </div>
                     ))}
                 </div>
 
-                {}
-                <input 
+                <input
                     type="date"
                     name="spotRoundDates"
                     value={college.spotRoundDates}
                     onChange={handleChange}
                     required
                 />
+                {errors.spotRoundDates && <div className="error-message">{errors.spotRoundDates}</div>}
 
                 <input
                     type="text"
@@ -293,6 +339,8 @@ const CollegeProfilePage = () => {
                     placeholder="Minimum Student Criteria"
                     required
                 />
+                {errors.minStudentCriteria && <div className="error-message">{errors.minStudentCriteria}</div>}
+
                 <input
                     type="text"
                     name="maxCriteria"
@@ -301,6 +349,8 @@ const CollegeProfilePage = () => {
                     placeholder="Maximum Criteria"
                     required
                 />
+                {errors.maxCriteria && <div className="error-message">{errors.maxCriteria}</div>}
+
                 <select
                     name="approvedBy"
                     value={college.approvedBy}
@@ -313,7 +363,9 @@ const CollegeProfilePage = () => {
                     <option value="NBA">NBA</option>
                     <option value="Others">Others</option>
                 </select>
-                <button type="submit">Submit</button>
+                {errors.approvedBy && <div className="error-message">{errors.approvedBy}</div>}
+
+                <button type="submit" style={{ fontSize: '16px' }}>Submit</button>
             </form>
         </div>
     );
