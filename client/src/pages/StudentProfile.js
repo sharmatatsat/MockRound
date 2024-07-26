@@ -12,17 +12,20 @@ const StudentProfile = () => {
             tenth: '',
             twelfth: '',
         },
+        tenthMarksheet: null,
+        twelfthMarksheet: null,
         entranceExam: 'JEE',
+        entranceExamMarksheet: null,
         percentile: '',
         caste: ''
     });
-    
+
     const [colleges, setColleges] = useState([]);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, files } = e.target;
 
         let errorMsg = '';
         switch (name) {
@@ -46,7 +49,7 @@ const StudentProfile = () => {
 
         setProfile({
             ...profile,
-            [name]: value
+            [name]: files ? files[0] : value
         });
         setErrors({
             ...errors,
@@ -90,16 +93,26 @@ const StudentProfile = () => {
         if (Object.keys(newErrors).length > 0) return;
 
         try {
+            const formData = new FormData();
+            formData.append('name', profile.name);
+            formData.append('phone', profile.phone);
+            formData.append('email', profile.email);
+            formData.append('aadhar', profile.aadhar);
+            formData.append('tenth', profile.marks.tenth);
+            formData.append('twelfth', profile.marks.twelfth);
+            formData.append('tenthMarksheet', profile.tenthMarksheet);
+            formData.append('twelfthMarksheet', profile.twelfthMarksheet);
+            formData.append('entranceExam', profile.entranceExam);
+            formData.append('entranceExamMarksheet', profile.entranceExamMarksheet);
+            formData.append('percentile', profile.percentile);
+            formData.append('caste', profile.caste);
+
             const response = await fetch('http://localhost:5000/api/collegess/find', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({
-                    percentile: profile.percentile,
-                    caste: profile.caste
-                })
+                body: formData
             });
 
             if (response.ok) {
@@ -115,9 +128,9 @@ const StudentProfile = () => {
     };
 
     return (
-        <div className="profile-container" style={{marginTop: "20px"}}>
+        <div className="profile-container" style={{ marginTop: "20px" }}>
             <form onSubmit={handleSubmit} className="profile-form">
-                <h2 style={{textAlign: "center"}}>Student Profile</h2>
+                <h2 style={{ textAlign: "center" }}>Student Profile</h2>
                 <input 
                     type="text" 
                     name="name" 
@@ -126,7 +139,7 @@ const StudentProfile = () => {
                     placeholder="Name" 
                     required 
                 />
-                {errors.name && <span className="error" style={{color: 'red'}}>{errors.name}</span>}
+                {errors.name && <span className="error" style={{ color: 'red' }}>{errors.name}</span>}
                 <input 
                     type="tel" 
                     name="phone" 
@@ -135,7 +148,7 @@ const StudentProfile = () => {
                     placeholder="Phone" 
                     required 
                 />
-                {errors.phone && <span className="error" style={{color: 'red'}}>{errors.phone}</span>}
+                {errors.phone && <span className="error" style={{ color: 'red' }}>{errors.phone}</span>}
                 <input 
                     type="email" 
                     name="email" 
@@ -144,7 +157,7 @@ const StudentProfile = () => {
                     placeholder="Email" 
                     required 
                 />
-                {errors.email && <span className="error" style={{color: 'red'}}>{errors.email}</span>}
+                {errors.email && <span className="error" style={{ color: 'red' }}>{errors.email}</span>}
                 <input 
                     type="text" 
                     name="aadhar" 
@@ -154,7 +167,7 @@ const StudentProfile = () => {
                     required 
                     maxLength="12"
                 />
-                {errors.aadhar && <span className="error" style={{color: 'red'}}>{errors.aadhar}</span>}
+                {errors.aadhar && <span className="error" style={{ color: 'red' }}>{errors.aadhar}</span>}
                 <input 
                     type="number" 
                     step="0.01" 
@@ -164,7 +177,18 @@ const StudentProfile = () => {
                     placeholder="10th Marks (%)" 
                     required 
                 />
-                {errors.tenth && <span className="error" style={{color: 'red'}}>{errors.tenth}</span>}
+                {errors.tenth && <span className="error" style={{ color: 'red' }}>{errors.tenth}</span>}
+                <label>
+                    10th Marksheet
+                    <input 
+                        type="file" 
+                        name="tenthMarksheet" 
+                        accept=".jpg,.png,.pdf" 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </label>
+                {errors.tenthMarksheet && <span className="error" style={{ color: 'red' }}>{errors.tenthMarksheet}</span>}
                 <input 
                     type="number" 
                     step="0.01" 
@@ -174,7 +198,18 @@ const StudentProfile = () => {
                     placeholder="12th Marks (%)" 
                     required 
                 />
-                {errors.twelfth && <span className="error" style={{color: 'red'}}>{errors.twelfth}</span>}
+                {errors.twelfth && <span className="error" style={{ color: 'red' }}>{errors.twelfth}</span>}
+                <label>
+                    12th Marksheet
+                    <input 
+                        type="file" 
+                        name="twelfthMarksheet" 
+                        accept=".jpg,.png,.pdf" 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </label>
+                {errors.twelfthMarksheet && <span className="error" style={{ color: 'red' }}>{errors.twelfthMarksheet}</span>}
                 <select 
                     name="entranceExam" 
                     value={profile.entranceExam} 
@@ -184,6 +219,17 @@ const StudentProfile = () => {
                     <option value="JEE">JEE</option>
                     <option value="NEET">NEET</option>
                 </select>
+                <label>
+                    {profile.entranceExam} Marksheet
+                    <input 
+                        type="file" 
+                        name="entranceExamMarksheet" 
+                        accept=".jpg,.png,.pdf" 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </label>
+                {errors.entranceExamMarksheet && <span className="error" style={{ color: 'red' }}>{errors.entranceExamMarksheet}</span>}
                 <input 
                     type="number" 
                     step="0.01" 
@@ -193,7 +239,7 @@ const StudentProfile = () => {
                     placeholder="Percentile" 
                     required 
                 />
-                {errors.percentile && <span className="error" style={{color: 'red'}}>{errors.percentile}</span>}
+                {errors.percentile && <span className="error" style={{ color: 'red' }}>{errors.percentile}</span>}
                 <select 
                     name="caste" 
                     value={profile.caste} 
@@ -206,8 +252,8 @@ const StudentProfile = () => {
                     <option value="OBC">OBC</option>
                     <option value="General">General</option>
                 </select>
-                {errors.caste && <span className="error" style={{color: 'red'}}>{errors.caste}</span>}
-                <button type="submit" style={{fontSize: "17px"}}>Find Colleges</button>
+                {errors.caste && <span className="error" style={{ color: 'red' }}>{errors.caste}</span>}
+                <button type="submit" style={{ fontSize: "17px" }}>Find Colleges</button>
             </form>
             {colleges.length > 0 && (
                 <div className="colleges-list">
