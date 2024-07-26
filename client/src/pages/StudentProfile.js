@@ -178,7 +178,7 @@ const StudentProfile = () => {
                     required 
                 />
                 {errors.tenth && <span className="error" style={{ color: 'red' }}>{errors.tenth}</span>}
-                <label>
+                <label style={{fontWeight : "bold"}}>
                     10th Marksheet
                     <input 
                         type="file" 
@@ -199,7 +199,7 @@ const StudentProfile = () => {
                     required 
                 />
                 {errors.twelfth && <span className="error" style={{ color: 'red' }}>{errors.twelfth}</span>}
-                <label>
+                <label style={{fontWeight : "bold"}}>
                     12th Marksheet
                     <input 
                         type="file" 
@@ -219,7 +219,7 @@ const StudentProfile = () => {
                     <option value="JEE">JEE</option>
                     <option value="NEET">NEET</option>
                 </select>
-                <label>
+                <label style={{fontWeight : "bold"}}>
                     {profile.entranceExam} Marksheet
                     <input 
                         type="file" 
