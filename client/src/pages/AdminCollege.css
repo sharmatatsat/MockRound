@@ -1,0 +1,38 @@
+.table-container {
+    margin: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures borders between cells are merged */
+    margin-bottom: 20px;
+}
+
+.th, .td {
+    border: 2px solid #f4f4f4; /* Border color and thickness */
+    padding: 8px; /* Space inside each cell */
+    text-align: left; /* Align text to the left */
+}
+
+.th {
+    background-color: #f4f4f4; /* Background color for headers */
+    font-weight: bold; /* Make header text bold */
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+}
+
+.table td, .table th {
+    border: 2px solid #000000; /* Add border around each cell */
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternate row color for better readability */
+}
+
+.table tr:hover {
+    background-color: #f1f1f1; /* Highlight row on hover */
+}

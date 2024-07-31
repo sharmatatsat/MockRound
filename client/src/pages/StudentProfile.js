@@ -93,6 +93,7 @@ const StudentProfile = () => {
         if (Object.keys(newErrors).length > 0) return;
 
         try {
+            // Save student profile to the database
             const formData = new FormData();
             formData.append('name', profile.name);
             formData.append('phone', profile.phone);
@@ -107,7 +108,21 @@ const StudentProfile = () => {
             formData.append('percentile', profile.percentile);
             formData.append('caste', profile.caste);
 
-            const response = await fetch('http://localhost:5000/api/collegess/find', {
+            const responseSave = await fetch('http://localhost:5000/api/profile/update', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!responseSave.ok) {
+                console.log('Error saving student profile');
+                return;
+            }
+
+            // Find colleges based on the student profile
+            const responseFind = await fetch('http://localhost:5000/api/colleges/find', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -115,8 +130,8 @@ const StudentProfile = () => {
                 body: formData
             });
 
-            if (response.ok) {
-                const collegesData = await response.json();
+            if (responseFind.ok) {
+                const collegesData = await responseFind.json();
                 setColleges(collegesData);
                 console.log('Colleges found:', collegesData);
             } else {
@@ -220,7 +235,7 @@ const StudentProfile = () => {
                     <option value="NEET">NEET</option>
                 </select>
                 <label style={{fontWeight : "bold"}}>
-                    {profile.entranceExam} Marksheet
+                    Entrance Exam Marksheet
                     <input 
                         type="file" 
                         name="entranceExamMarksheet" 
@@ -246,38 +261,21 @@ const StudentProfile = () => {
                     onChange={handleChange} 
                     required
                 >
-                    <option value="" disabled>Select Caste</option>
-                    <option value="ST">ST</option>
-                    <option value="SC">SC</option>
-                    <option value="OBC">OBC</option>
+                    <option value="">Select Caste Category</option>
                     <option value="General">General</option>
+                    <option value="OBC">OBC</option>
+                    <option value="SC">SC</option>
+                    <option value="ST">ST</option>
                 </select>
                 {errors.caste && <span className="error" style={{ color: 'red' }}>{errors.caste}</span>}
-                <button type="submit" style={{ fontSize: "17px" }}>Find Colleges</button>
+                <button type="submit">Find Colleges</button>
             </form>
             {colleges.length > 0 && (
                 <div className="colleges-list">
-                    <h2>Colleges Found:</h2>
+                    <h3>Eligible Colleges</h3>
                     <ul>
-                        {colleges.map((college, index) => (
-                            <li key={index}>
-                                <h3>{college.collegeName}</h3>
-                                <p>Address: {college.address}</p>
-                                <p>Courses Available: {college.coursesAvailable.join(', ')}</p>
-                                <p>Cut-off Spot Round: {college.spotRoundDates}</p>
-                                {college.casteCategoryCutOff && (
-                                    <>
-                                        <p>ST Cut-off: {college.casteCategoryCutOff.ST}%</p>
-                                        <p>SC Cut-off: {college.casteCategoryCutOff.SC}%</p>
-                                        <p>OBC Cut-off: {college.casteCategoryCutOff.OBC}%</p>
-                                        <p>General Cut-off: {college.casteCategoryCutOff.General}%</p>
-                                    </>
-                                )}
-                                <p>Minimum Student Criteria: {college.minStudentCriteria}%</p>
-                                <p>Max Criteria: {college.maxCriteria}%</p>
-                                <p>Spot Round Dates: {college.spotRoundDates}</p>
-                                <p>Approved By: {college.approvedBy}</p>
-                            </li>
+                        {colleges.map((college) => (
+                            <li key={college._id}>{college.name} - {college.address}</li>
                         ))}
                     </ul>
                 </div>
