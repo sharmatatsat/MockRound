@@ -59,48 +59,27 @@
     padding: 0;
 }
 
-.colleges-list li {
-    margin-bottom: 20px;
+.colleges-list .college {
+    border: 2px solid #000000; /* Blue border for college entries */
+    border-radius: 8px; /* Rounded corners */
     padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
+    margin: 10px 0;
+    background-color: #fff; /* Background color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for a lifted effect */
 }
 
 .colleges-list h3 {
     margin-top: 0;
+    font-size: 18px; /* Font size for the college name */
+    color: #333; /* Darker color for the college name */
 }
 
 .colleges-list p {
     margin: 5px 0;
+    font-size: 16px; /* Font size for other details */
+    color: #555; /* Darker color for the details */
 }
 
-
-.colleges-list {
-    margin-top: 20px;
-}
-
-.colleges-list h2 {
-    text-align: center;
-}
-
-.colleges-list ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.colleges-list li {
-    border: 1px solid #000000; /* Border color */
-    border-radius: 8px; /* Rounded corners */
-    padding: 15px;
-    margin: 10px 0;
-    background-color: #f9f9f9; /* Background color */
-}
-
-.colleges-list h3 {
-    margin: 0;
-}
-
-.colleges-list p {
-    margin: 5px 0;
+.colleges-list p strong {
+    color: #000; /* Bold labels in the details */
 }

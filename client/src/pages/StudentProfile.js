@@ -87,13 +87,12 @@ const StudentProfile = () => {
         if (profile.marks.twelfth < 0 || profile.marks.twelfth > 100) newErrors.twelfth = '12th Marks must be between 0 and 100';
         if (profile.percentile < 0 || profile.percentile > 100) newErrors.percentile = 'Percentile must be between 0 and 100';
         if (!profile.caste) newErrors.caste = 'Caste is required';
-
+    
         setErrors(newErrors);
-
+    
         if (Object.keys(newErrors).length > 0) return;
-
+    
         try {
-            // Save student profile to the database
             const formData = new FormData();
             formData.append('name', profile.name);
             formData.append('phone', profile.phone);
@@ -107,38 +106,44 @@ const StudentProfile = () => {
             formData.append('entranceExamMarksheet', profile.entranceExamMarksheet);
             formData.append('percentile', profile.percentile);
             formData.append('caste', profile.caste);
-
-            const responseSave = await fetch('http://localhost:5000/api/profile/update', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: formData
-            });
-
-            if (!responseSave.ok) {
-                console.log('Error saving student profile');
-                return;
-            }
-
-            // Find colleges based on the student profile
-            const responseFind = await fetch('http://localhost:5000/api/colleges/find', {
+    
+            const responseSave = await fetch('http://localhost:5000/api/profile/save', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: formData
             });
-
-            if (responseFind.ok) {
-                const collegesData = await responseFind.json();
-                setColleges(collegesData);
-                console.log('Colleges found:', collegesData);
-            } else {
-                console.log('Error fetching colleges');
+    
+            if (!responseSave.ok) {
+                const errorText = await responseSave.text();
+                console.error('Error saving student profile:', errorText);
+                return;
             }
+    
+            const responseFind = await fetch('http://localhost:5000/api/collegess/find', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    percentile: profile.percentile,
+                    caste: profile.caste
+                })
+            });
+    
+            if (!responseFind.ok) {
+                const errorText = await responseFind.text();
+                console.error('Error fetching colleges:', errorText);
+                return;
+            }
+    
+            const collegesData = await responseFind.json();
+            setColleges(collegesData);
+            console.log('Colleges found:', collegesData);
         } catch (error) {
-            console.log('Error:', error);
+            console.error('Error:', error);
         }
     };
 
@@ -193,7 +198,7 @@ const StudentProfile = () => {
                     required 
                 />
                 {errors.tenth && <span className="error" style={{ color: 'red' }}>{errors.tenth}</span>}
-                <label style={{fontWeight : "bold"}}>
+                <label style={{fontWeight: "bold"}}>
                     10th Marksheet
                     <input 
                         type="file" 
@@ -214,7 +219,7 @@ const StudentProfile = () => {
                     required 
                 />
                 {errors.twelfth && <span className="error" style={{ color: 'red' }}>{errors.twelfth}</span>}
-                <label style={{fontWeight : "bold"}}>
+                <label style={{fontWeight: "bold"}}>
                     12th Marksheet
                     <input 
                         type="file" 
@@ -225,16 +230,15 @@ const StudentProfile = () => {
                     />
                 </label>
                 {errors.twelfthMarksheet && <span className="error" style={{ color: 'red' }}>{errors.twelfthMarksheet}</span>}
-                <select 
+                <input 
+                    type="text" 
                     name="entranceExam" 
                     value={profile.entranceExam} 
                     onChange={handleChange} 
-                    required
-                >
-                    <option value="JEE">JEE</option>
-                    <option value="NEET">NEET</option>
-                </select>
-                <label style={{fontWeight : "bold"}}>
+                    placeholder="Entrance Exam" 
+                    required 
+                />
+                <label style={{fontWeight: "bold"}}>
                     Entrance Exam Marksheet
                     <input 
                         type="file" 
@@ -259,9 +263,9 @@ const StudentProfile = () => {
                     name="caste" 
                     value={profile.caste} 
                     onChange={handleChange} 
-                    required
+                    required 
                 >
-                    <option value="">Select Caste Category</option>
+                    <option value="">Select Caste</option>
                     <option value="General">General</option>
                     <option value="OBC">OBC</option>
                     <option value="SC">SC</option>
@@ -270,16 +274,26 @@ const StudentProfile = () => {
                 {errors.caste && <span className="error" style={{ color: 'red' }}>{errors.caste}</span>}
                 <button type="submit">Find Colleges</button>
             </form>
-            {colleges.length > 0 && (
-                <div className="colleges-list">
-                    <h3>Eligible Colleges</h3>
-                    <ul>
-                        {colleges.map((college) => (
-                            <li key={college._id}>{college.name} - {college.address}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+
+            <div className="colleges-list">
+                {colleges.length > 0 ? (
+                    colleges.map((college, index) => (
+                        <div key={index} className="college">
+    <h3>{college.collegeName}</h3>
+    <p><strong>Address:</strong> {college.address}</p>
+    <p><strong>Courses Available:</strong> {Array.isArray(college.coursesAvailable) ? college.coursesAvailable.join(', ') : 'N/A'}</p>
+    <p><strong>Cutoff (Spot Round):</strong> {college.cutOffSpotRound}</p>
+    {/* <p><strong>Caste Category Cutoff:</strong> {Array.isArray(college.casteCategoryCutOff) ? college.casteCategoryCutOff.join(', ') : 'N/A'}</p> */}
+    <p><strong>Min Criteria:</strong> {college.minStudentCriteria}</p>
+    <p><strong>Max Criteria:</strong> {college.maxCriteria}</p>
+    <p><strong>Spot Round Dates:</strong> {college.spotRoundDates || 'N/A'}</p>
+    <p><strong>Approved By:</strong> {college.approvedBy}</p>
+</div>
+                    ))
+                ) : (
+                    <p>No colleges found</p>
+                )}
+            </div>
         </div>
     );
 };
