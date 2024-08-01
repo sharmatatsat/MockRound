@@ -17,7 +17,7 @@ const AdminStudent = () => {
         fetchProfiles();
     }, []);
 
-    const getFileURL = (filename) => `/api/files/${filename}`;
+    const getFileURL = (filename) => `http://localhost:5000/api/files/${filename}`;
 
     return (
         <div>
