@@ -1,3 +1,4 @@
+// models/Profile.js
 const mongoose = require('mongoose');
 
 const profileSchema = new mongoose.Schema({
@@ -6,12 +7,12 @@ const profileSchema = new mongoose.Schema({
     aadhar: String,
     marks: {
         tenth: Number,
-        twelfth: Number
+        twelfth: Number,
     },
-    tenthMarksheet: String,
-    twelfthMarksheet: String,
+    tenthMarksheet: String, // Change from ObjectId to String
+    twelfthMarksheet: String, // Change from ObjectId to String
+    entranceExamMarksheet: String, // Change from ObjectId to String
     entranceExam: String,
-    entranceExamMarksheet: String,
     percentile: Number,
     caste: String
 });

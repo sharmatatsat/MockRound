@@ -5,10 +5,10 @@ const AdminController = require('../controllers/adminController');
 // Route to get all colleges
 router.get('/colleges', AdminController.getColleges);
 
-// Route to get all students
-router.get('/students', AdminController.getStudents);
+// Route to get all student profiles
+router.get('/profiles/all', AdminController.getProfiles); // Updated route
 
-// Route to get student files by student ID
+// Route to get student details including files
 router.get('/students/:id/files', AdminController.getStudentFiles);
 
 module.exports = router;

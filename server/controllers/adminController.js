@@ -12,14 +12,14 @@ exports.getColleges = async (req, res) => {
     }
 };
 
-// Controller to get all students
-exports.getStudents = async (req, res) => {
+// Controller to get all student profiles
+exports.getProfiles = async (req, res) => {
     try {
-        const students = await Profile.find(); // Fetch all student profiles from the database
-        res.status(200).json(students); // Respond with the list of student profiles
+        const profiles = await Profile.find(); // Fetch all student profiles from the database
+        res.status(200).json(profiles); // Respond with the list of student profiles
     } catch (error) {
-        console.error('Error fetching students:', error);
-        res.status(500).json({ message: 'Error fetching students', error });
+        console.error('Error fetching profiles:', error);
+        res.status(500).json({ message: 'Error fetching profiles', error });
     }
 };
 
