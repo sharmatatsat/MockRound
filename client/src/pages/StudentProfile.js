@@ -27,34 +27,41 @@ const StudentProfile = () => {
     const handleChange = (e) => {
         const { name, value, files } = e.target;
 
-        let errorMsg = '';
-        switch (name) {
-            case 'phone':
-                if (!/^\d{10}$/.test(value)) errorMsg = 'Phone must be a 10-digit number';
-                break;
-            case 'email':
-                if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) errorMsg = 'Invalid email address';
-                break;
-            case 'aadhar':
-                if (!/^\d{12}$/.test(value)) errorMsg = 'Aadhar must be a 12-digit number';
-                break;
-            case 'tenth':
-            case 'twelfth':
-            case 'percentile':
-                if (value < 0 || value > 100) errorMsg = 'Marks/Percentile must be between 0 and 100';
-                break;
-            default:
-                break;
-        }
+        if (files) {
+            setProfile(prevProfile => ({
+                ...prevProfile,
+                [name]: files[0]
+            }));
+        } else {
+            let errorMsg = '';
+            switch (name) {
+                case 'phone':
+                    if (!/^\d{10}$/.test(value)) errorMsg = 'Phone must be a 10-digit number';
+                    break;
+                case 'email':
+                    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) errorMsg = 'Invalid email address';
+                    break;
+                case 'aadhar':
+                    if (!/^\d{12}$/.test(value)) errorMsg = 'Aadhar must be a 12-digit number';
+                    break;
+                case 'tenth':
+                case 'twelfth':
+                case 'percentile':
+                    if (value < 0 || value > 100) errorMsg = 'Marks/Percentile must be between 0 and 100';
+                    break;
+                default:
+                    break;
+            }
 
-        setProfile({
-            ...profile,
-            [name]: files ? files[0] : value
-        });
-        setErrors({
-            ...errors,
-            [name]: errorMsg
-        });
+            setProfile(prevProfile => ({
+                ...prevProfile,
+                [name]: value
+            }));
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: errorMsg
+            }));
+        }
     };
 
     const handleMarksChange = (e) => {
@@ -63,17 +70,17 @@ const StudentProfile = () => {
         let errorMsg = '';
         if (value < 0 || value > 100) errorMsg = 'Marks must be between 0 and 100';
 
-        setProfile({
-            ...profile,
+        setProfile(prevProfile => ({
+            ...prevProfile,
             marks: {
-                ...profile.marks,
+                ...prevProfile.marks,
                 [name]: value
             }
-        });
-        setErrors({
-            ...errors,
+        }));
+        setErrors(prevErrors => ({
+            ...prevErrors,
             [name]: errorMsg
-        });
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -87,11 +94,11 @@ const StudentProfile = () => {
         if (profile.marks.twelfth < 0 || profile.marks.twelfth > 100) newErrors.twelfth = '12th Marks must be between 0 and 100';
         if (profile.percentile < 0 || profile.percentile > 100) newErrors.percentile = 'Percentile must be between 0 and 100';
         if (!profile.caste) newErrors.caste = 'Caste is required';
-    
+
         setErrors(newErrors);
-    
+
         if (Object.keys(newErrors).length > 0) return;
-    
+
         try {
             const formData = new FormData();
             formData.append('name', profile.name);
@@ -106,21 +113,21 @@ const StudentProfile = () => {
             formData.append('entranceExamMarksheet', profile.entranceExamMarksheet);
             formData.append('percentile', profile.percentile);
             formData.append('caste', profile.caste);
-    
-            const responseSave = await fetch('http://localhost:5000/api/profile/save', {
+
+            const responseSave = await fetch('http://localhost:5000/api/profile/update', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: formData
             });
-    
+
             if (!responseSave.ok) {
                 const errorText = await responseSave.text();
                 console.error('Error saving student profile:', errorText);
                 return;
             }
-    
+
             const responseFind = await fetch('http://localhost:5000/api/collegess/find', {
                 method: 'POST',
                 headers: {
@@ -132,13 +139,13 @@ const StudentProfile = () => {
                     caste: profile.caste
                 })
             });
-    
+
             if (!responseFind.ok) {
                 const errorText = await responseFind.text();
                 console.error('Error fetching colleges:', errorText);
                 return;
             }
-    
+
             const collegesData = await responseFind.json();
             setColleges(collegesData);
             console.log('Colleges found:', collegesData);
@@ -279,16 +286,16 @@ const StudentProfile = () => {
                 {colleges.length > 0 ? (
                     colleges.map((college, index) => (
                         <div key={index} className="college">
-    <h3>{college.collegeName}</h3>
-    <p><strong>Address:</strong> {college.address}</p>
-    <p><strong>Courses Available:</strong> {Array.isArray(college.coursesAvailable) ? college.coursesAvailable.join(', ') : 'N/A'}</p>
-    <p><strong>Cutoff (Spot Round):</strong> {college.cutOffSpotRound}</p>
-    {/* <p><strong>Caste Category Cutoff:</strong> {Array.isArray(college.casteCategoryCutOff) ? college.casteCategoryCutOff.join(', ') : 'N/A'}</p> */}
-    <p><strong>Min Criteria:</strong> {college.minStudentCriteria}</p>
-    <p><strong>Max Criteria:</strong> {college.maxCriteria}</p>
-    <p><strong>Spot Round Dates:</strong> {college.spotRoundDates || 'N/A'}</p>
-    <p><strong>Approved By:</strong> {college.approvedBy}</p>
-</div>
+                            <h3>{college.collegeName}</h3>
+                            <p><strong>Address:</strong> {college.address}</p>
+                            <p><strong>Courses Available:</strong> {Array.isArray(college.coursesAvailable) ? college.coursesAvailable.join(', ') : 'N/A'}</p>
+                            <p><strong>Cutoff (Spot Round):</strong> {college.cutOffSpotRound}</p>
+                            {/* <p><strong>Caste Category Cutoff:</strong> {Array.isArray(college.casteCategoryCutOff) ? college.casteCategoryCutOff.join(', ') : 'N/A'}</p> */}
+                            <p><strong>Min Criteria:</strong> {college.minStudentCriteria}</p>
+                            <p><strong>Max Criteria:</strong> {college.maxCriteria}</p>
+                            <p><strong>Spot Round Dates:</strong> {college.spotRoundDates || 'N/A'}</p>
+                            <p><strong>Approved By:</strong> {college.approvedBy}</p>
+                        </div>
                     ))
                 ) : (
                     <p>No colleges found</p>
