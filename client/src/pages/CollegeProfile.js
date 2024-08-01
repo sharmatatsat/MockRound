@@ -105,25 +105,33 @@ const CollegeProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
-
+    
         // Perform final validation
         let hasErrors = false;
         const newErrors = {};
-
+    
         if (!Number.isInteger(Number(college.minStudentCriteria)) || Number(college.minStudentCriteria) <= 0) {
             newErrors.minStudentCriteria = 'Must be a positive integer';
             hasErrors = true;
         }
-
+    
         if (!Number.isInteger(Number(college.maxCriteria)) || Number(college.maxCriteria) <= 0) {
             newErrors.maxCriteria = 'Must be a positive integer';
             hasErrors = true;
         }
-
+    
+        // Ensure casteCategoryCutOff has default values
+        const casteCategoryCutOff = {
+            ST: college.casteCategoryCutOff.ST || 0,
+            SC: college.casteCategoryCutOff.SC || 0,
+            OBC: college.casteCategoryCutOff.OBC || 0,
+            General: college.casteCategoryCutOff.General || 0
+        };
+    
         setErrors(newErrors);
-
+    
         if (hasErrors) return;
-
+    
         try {
             const response = await fetch('http://localhost:5000/api/colleges/add', {
                 method: 'POST',
@@ -131,9 +139,12 @@ const CollegeProfilePage = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(college)
+                body: JSON.stringify({
+                    ...college,
+                    casteCategoryCutOff
+                })
             });
-
+    
             if (response.ok) {
                 const data = await response.json();
                 console.log('College added:', data);
@@ -147,6 +158,7 @@ const CollegeProfilePage = () => {
             console.log('Error:', error);
         }
     };
+    
 
     const addCourse = () => {
         if (college.branch === 'Others') {
