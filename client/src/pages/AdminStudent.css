@@ -1,0 +1,15 @@
+/* AdminStudent.css */
+
+.table-cell {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+}

@@ -10,7 +10,7 @@
 }
 
 .th, .td {
-    border: 2px solid #f4f4f4; /* Border color and thickness */
+    border: 2px solid #a2a0a0; /* Border color and thickness */
     padding: 8px; /* Space inside each cell */
     text-align: left; /* Align text to the left */
 }
