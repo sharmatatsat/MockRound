@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import StudentsPage from './pages/AdminStudent'; 
 import CollegesPage from './pages/AdminCollege'; 
 import LandingPage from './pages/LandingPage';
+import StudentDashboard from './pages/StudentDashboard';
 
 
 function App() {
@@ -21,9 +22,10 @@ function App() {
                 <Route path="/profile" element={<CollegeProfilePage />} />
 
                 {/* Student Routes */}
-                <Route path="/student/login" element={<StudentLoginPage />} />
                 {/* <Route path="/student/signup" element={<StudentSignupPage />} /> */}
+                <Route path="/student/login" element={<StudentLoginPage />} />
                 <Route path="/student/profile" element={<StudentProfilePage />} />
+                <Route path="/student/dashboard" element={<StudentDashboard />} />
 
                  {/* Admin Routes */}
                  <Route path="/admin" element={<AdminDashboard />} />

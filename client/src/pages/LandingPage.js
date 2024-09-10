@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaRocket, FaGraduationCap, FaLaptop, FaUsers } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import '../index.css';
 
 const LandingPage = () => {
