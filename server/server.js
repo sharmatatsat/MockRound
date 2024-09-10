@@ -9,7 +9,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const collegesRoutes = require('./routes/colleges');
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profileRoutes');
-const fileRoutes = require('./routes/fileRoutes'); // Import file routes
+const fileRoutes = require('./routes/fileRoutes'); 
 const path = require('path');
 
 dotenv.config();
@@ -21,7 +21,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// Serve static files from 'uploads' directory
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
@@ -31,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     })
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Set JWT secret
+
 app.set('jwt_secret', process.env.JWT_SECRET || 'secretkey');
 
 // Routes
@@ -41,9 +41,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/collegess', collegesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
-
-// File routes
-app.use('/api/files', fileRoutes);
+app.use('/api/files', fileRoutes); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 
 const profileSchema = new mongoose.Schema({
-    name: String,
     phone: String,
     aadhar: String,
     marks: {
@@ -14,7 +13,6 @@ const profileSchema = new mongoose.Schema({
     entranceExamMarksheet: String, // Change from ObjectId to String
     entranceExam: String,
     percentile: Number,
-    caste: String
 });
 
 const Profile = mongoose.model('Profile', profileSchema);

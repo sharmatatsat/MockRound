@@ -3,19 +3,19 @@ const multer = require('multer');
 const path = require('path');
 const router = express.Router();
 
-// Setup multer storage
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Add timestamp to filename
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
 });
 
 const upload = multer({ storage });
 
-// Route to upload files
+// Route 
 router.post('/upload', upload.fields([
     { name: 'tenthMarksheet', maxCount: 1 },
     { name: 'twelfthMarksheet', maxCount: 1 },

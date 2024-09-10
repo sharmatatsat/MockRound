@@ -9,12 +9,12 @@ const generateToken = (id) => {
 };
 
 exports.registerStudent = async (req, res) => {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     try {
-        const student = await Student.create({ email, password });
+        const student = await Student.create({ name, email, password });
         const token = generateToken(student._id);
-        res.status(201).json({ _id: student._id, email: student.email, token });
+        res.status(201).json({ _id: student._id, name: student.name, email: student.email, token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -28,7 +28,7 @@ exports.loginStudent = async (req, res) => {
 
         if (student && (await student.matchPassword(password))) {
             const token = generateToken(student._id);
-            res.json({ _id: student._id, email: student.email, token });
+            res.json({ _id: student._id, name: student.name, email: student.email, token });
         } else {
             res.status(401).json({ error: 'Invalid email or password' });
         }

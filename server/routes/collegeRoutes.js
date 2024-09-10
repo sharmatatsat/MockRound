@@ -17,7 +17,7 @@ router.post('/add', protect, async (req, res) => {
         minStudentCriteria,
         maxCriteria,
         spotRoundDates,
-        // casteCategoryCutOff,
+        casteCategoryCutOff,
         approvedBy
     } = req.body;
 
@@ -35,7 +35,7 @@ router.post('/add', protect, async (req, res) => {
             minStudentCriteria,
             maxCriteria,
             spotRoundDates,
-            // casteCategoryCutOff,
+            casteCategoryCutOff,
             approvedBy,
             userId: req.user._id 
         });

@@ -37,7 +37,8 @@ exports.saveStudentData = async (req, res) => {
         profile.name = name;
         profile.phone = phone;
         profile.aadhar = aadhar;
-        profile.marks = marks;
+        profile.marks.tenth = marks.tenth; // Ensure these fields are updated correctly
+        profile.marks.twelfth = marks.twelfth;
         profile.entranceExam = entranceExam;
         profile.percentile = percentile;
         profile.caste = caste;
@@ -51,5 +52,27 @@ exports.saveStudentData = async (req, res) => {
         res.json(profile);
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+};
+
+exports.verifyStudentProfile = async (req, res) => {
+    const { studentId } = req.params;
+
+    try {
+        
+        const result = await Profile.findByIdAndUpdate(
+            studentId,
+            { verified: true },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).send('Student not found');
+        }
+
+        res.status(200).send('Student profile verified');
+    } catch (error) {
+        console.error('Error verifying student profile:', error);
+        res.status(500).send('Server error');
     }
 };

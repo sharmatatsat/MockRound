@@ -2,8 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const { handleFileUploads, saveStudentData } = require('../controllers/ProfileController');
+const profileController = require('../controllers/ProfileController');
 
-// Route for handling file uploads and saving student data
+
 router.post('/update', handleFileUploads, saveStudentData);
-
+router.post('/verify/:studentId', profileController.verifyStudentProfile);
 module.exports = router;
