@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle, FaLinkedin } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 
 const AuthPages = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,71 +11,36 @@ const AuthPages = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const userData = {
-      email: email.trim(),
-      password: password,
-      name: name.trim(),
-    };
-
     if (isLogin) {
-      // Login logic
-      try {
-        const response = await fetch('http://localhost:5000/api/students/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem('token', data.token);
-          navigate('/student/profile');
-        } else {
-          const errorData = await response.json();
-          setError(errorData.error || 'Login failed');
-        }
-      } catch (error) {
-        setError('Login failed: ' + error.message);
+      // Login logic here
+      if (email !== 'user@example.com' || password !== 'password123') {
+        setError('Invalid email or password');
+      } else {
+        setError('');
+        alert('Login successful!');
       }
     } else {
-      // Signup logic
+      // Signup logic here
       if (password !== confirmPassword) {
         setError('Passwords do not match');
       } else if (!acceptTerms) {
         setError('Please accept the terms and conditions');
       } else {
-        try {
-          const response = await fetch('http://localhost:5000/api/students/signup', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
-
-          if (response.ok) {
-            alert('Signup successful! Please check your email for verification.');
-            setIsLogin(true); // Switch back to login after signup
-          } else {
-            const errorData = await response.json();
-            setError(errorData.error || 'Signup failed');
-          }
-        } catch (error) {
-          setError('Signup failed: ' + error.message);
-        }
+        setError('');
+        alert('Signup successful! Please check your email for verification.');
       }
     }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleForgotPassword = () => {
+    alert('Password recovery email sent!');
   };
 
   return (
@@ -115,25 +79,26 @@ const AuthPages = () => {
             />
           </div>
           <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-            <button
-              type="button"
-              onClick={togglePasswordVisibility}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 h-full"
-            >
-              {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
-            </button>
-          </div>
+  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+    Password
+  </label>
+  <input
+    type={showPassword ? 'text' : 'password'}
+    id="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+    required
+  />
+  <button
+    type="button"
+    onClick={togglePasswordVisibility}
+    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 h-full"
+  >
+    {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
+  </button>
+</div>
+
           {!isLogin && (
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
@@ -167,6 +132,7 @@ const AuthPages = () => {
               <div className="text-sm">
                 <a
                   href="#"
+                  onClick={handleForgotPassword}
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
                   Forgot your password?
@@ -228,22 +194,20 @@ const AuthPages = () => {
                 href="#"
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               >
-                <FaLinkedin className="h-5 w-5 text-blue-700" />
+                <FaLinkedin className="h-5 w-5 text-blue-500" />
               </a>
             </div>
           </div>
         </div>
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            {isLogin ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </p>
-        </div>
+        <p className="mt-8 text-center text-sm text-gray-600">
+          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+          >
+            {isLogin ? 'Sign up' : 'Sign in'}
+          </button>
+        </p>
       </div>
     </div>
   );
