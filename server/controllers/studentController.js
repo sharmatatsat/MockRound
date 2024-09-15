@@ -28,7 +28,18 @@ exports.loginStudent = async (req, res) => {
 
         if (student && (await student.matchPassword(password))) {
             const token = generateToken(student._id);
-            res.json({ _id: student._id, name: student.name, email: student.email, token });
+
+            // Determine redirect path based on profile completion
+            const redirectPath = student.profileCompleted ? '/student/dashboard' : '/student/profile';
+
+            // Return the user data, token, and redirect path
+            res.json({
+                _id: student._id,
+                name: student.name,
+                email: student.email,
+                token,
+                redirectPath
+            });
         } else {
             res.status(401).json({ error: 'Invalid email or password' });
         }
