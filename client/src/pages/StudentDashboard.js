@@ -28,7 +28,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       const token = localStorage.getItem('token');
-  
+      
       try {
         const response = await fetch('http://localhost:5000/api/profile/student-data', {
           method: 'GET',
@@ -44,36 +44,35 @@ const StudentDashboard = () => {
   
         const data = await response.json();
         console.log('Fetched student data:', data);
-  
+        
         const percentile = data.profile?.percentile;
-        const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending"; // Set dynamically
-  
-        // Set student info including percentile, academic standing, and verification status
+        const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";
+        
         setStudentInfo({
           ...data.student,
           percentile: percentile || 'N/A',
           academicStanding: getAcademicStanding(percentile),
-          creditsCompleted, // Use dynamic value
+          creditsCompleted,
         });
   
-        // TODO: Replace with actual fetch for courses and progress data
-        setCourses([
-          { id: 1, name: 'College A', seats: 10, ranking: 5, location: 'New York' },
-          { id: 2, name: 'College B', seats: 15, ranking: 10, location: 'Los Angeles' },
-        ]);
+        // Update progressData with percentile values
+        // You can map this data to reflect different assessments or time periods
         setProgressData([
-          { name: 'Semester 1', gpa: 3.5 },
-          { name: 'Semester 2', gpa: 3.8 },
-          { name: 'Semester 3', gpa: 3.9 },
+          { name: 'Assessment 1', percentile: 85 },
+          { name: 'Assessment 2', percentile: 90 },
+          { name: 'Assessment 3', percentile: 95 },
+          { name: 'Current', percentile: percentile },
         ]);
       } catch (error) {
         console.error('Error fetching student data:', error.message);
-        navigate('/login'); // Redirect to login if there's an issue
+        navigate('/login'); 
       }
     };
   
     fetchStudentData();
   }, [navigate]);
+  
+  
 
   const toggleHighContrast = () => {
     setHighContrast(!highContrast);
@@ -95,7 +94,7 @@ const StudentDashboard = () => {
         isDragging: monitor.isDragging(),
       }),
     });
-
+  
     const [, drop] = useDrop({
       accept: 'course',
       hover: (item) => {
@@ -105,16 +104,18 @@ const StudentDashboard = () => {
         }
       },
     });
-
+  
     return (
       <div
         ref={(node) => drag(drop(node))}
         className={`p-4 mb-4 rounded-lg shadow-md ${highContrast ? 'bg-black text-white' : 'bg-white'} ${isDragging ? 'opacity-50' : 'opacity-100'}`}
       >
-        <h3 className="text-lg font-semibold mb-2">{course.name}</h3>
-        <p className="text-sm mb-1">Seats Remaining: {course.seats}</p>
-        <p className="text-sm mb-1">Ranking: {course.ranking}</p>
-        <p className="text-sm mb-1">Location: {course.location}</p>
+        <h3 className="text-lg font-semibold mb-2">{course.collegeName}</h3>
+        <p className="text-sm mb-1">State: {course.state}</p>
+        <p className="text-sm mb-1">City: {course.city}</p>
+        <p className="text-sm mb-1">Course: {course.course}</p>
+        <p className="text-sm mb-1">Seats Available: {course.maxCriteria}</p>
+        <p className="text-sm mb-1">Approved By: {course.approvedBy}</p>
       </div>
     );
   };
@@ -198,7 +199,7 @@ const StudentDashboard = () => {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="gpa" stroke="#8884d8" />
+                      <Line type="monotone" dataKey="Percentile" stroke="#8884d8" />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
