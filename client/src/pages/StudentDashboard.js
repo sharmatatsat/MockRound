@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane } from 'react-icons/fa';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -8,59 +7,80 @@ import { useNavigate } from 'react-router-dom';
 
 const StudentDashboard = () => {
   const [highContrast, setHighContrast] = useState(false);
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]); // For eligible colleges
   const [studentInfo, setStudentInfo] = useState({});
   const [notifications, setNotifications] = useState([
     { id: 1, message: 'Registration for next semester opens tomorrow' },
     { id: 2, message: 'New scholarship opportunities available' },
   ]);
-  const [progressData, setProgressData] = useState([]);
+  const [progressData, setProgressData] = useState([]); // For academic progress graph
   const navigate = useNavigate();
 
-  const fetchStudentData = async () => {
-    const token = localStorage.getItem('token');
-
-    try {
-      const response = await fetch('http://localhost:5000/api/profile/student-data', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch student data');
-      }
-
-      const data = await response.json();
-      setStudentInfo(data.student);
-      setCourses([
-        { id: 1, name: 'MIT-WPU', seats: '100', ranking: '87', location: 'Pune' },
-        { id: 2, name: 'Symbiosis', seats: '200', ranking: '101', location: 'Pune' },
-        { id: 3, name: 'IIT Bombay', seats: '20', ranking: '2', location: 'Mumbai' },
-      ]);
-      setProgressData([
-        { name: 'Fall 2022', gpa: 3.6 },
-        { name: 'Spring 2023', gpa: 3.8 },
-        { name: 'Fall 2023', gpa: 3.9 },
-      ]);
-    } catch (error) {
-      console.error('Error fetching student data:', error.message);
-      navigate('/login'); // Redirect to login if there's an issue
-    }
+  const getAcademicStanding = (percentile) => {
+    if (percentile >= 99) return 'Excellent';
+    if (percentile >= 98) return 'Great';
+    if (percentile >= 95) return 'Good';
+    if (percentile >= 90) return 'Decent';
+    if (percentile >= 75) return 'Average';
+    return 'Poor';
   };
 
   useEffect(() => {
+    const fetchStudentData = async () => {
+      const token = localStorage.getItem('token');
+  
+      try {
+        const response = await fetch('http://localhost:5000/api/profile/student-data', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch student data');
+        }
+  
+        const data = await response.json();
+        console.log('Fetched student data:', data);
+  
+        const percentile = data.profile?.percentile;
+        const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending"; // Set dynamically
+  
+        // Set student info including percentile, academic standing, and verification status
+        setStudentInfo({
+          ...data.student,
+          percentile: percentile || 'N/A',
+          academicStanding: getAcademicStanding(percentile),
+          creditsCompleted, // Use dynamic value
+        });
+  
+        // TODO: Replace with actual fetch for courses and progress data
+        setCourses([
+          { id: 1, name: 'College A', seats: 10, ranking: 5, location: 'New York' },
+          { id: 2, name: 'College B', seats: 15, ranking: 10, location: 'Los Angeles' },
+        ]);
+        setProgressData([
+          { name: 'Semester 1', gpa: 3.5 },
+          { name: 'Semester 2', gpa: 3.8 },
+          { name: 'Semester 3', gpa: 3.9 },
+        ]);
+      } catch (error) {
+        console.error('Error fetching student data:', error.message);
+        navigate('/login'); // Redirect to login if there's an issue
+      }
+    };
+  
     fetchStudentData();
-  }, []);
+  }, [navigate]);
 
   const toggleHighContrast = () => {
     setHighContrast(!highContrast);
   };
 
   const moveCard = (dragIndex, hoverIndex) => {
-    const draggedCourse = courses[dragIndex];
+    const draggedCourse = courses[dragIndex]; 
     const newCourses = [...courses];
     newCourses.splice(dragIndex, 1);
     newCourses.splice(hoverIndex, 0, draggedCourse);
@@ -78,7 +98,7 @@ const StudentDashboard = () => {
 
     const [, drop] = useDrop({
       accept: 'course',
-      hover: (item, monitor) => {
+      hover: (item) => {
         if (item.index !== index) {
           moveCard(item.index, index);
           item.index = index;
@@ -92,9 +112,9 @@ const StudentDashboard = () => {
         className={`p-4 mb-4 rounded-lg shadow-md ${highContrast ? 'bg-black text-white' : 'bg-white'} ${isDragging ? 'opacity-50' : 'opacity-100'}`}
       >
         <h3 className="text-lg font-semibold mb-2">{course.name}</h3>
-        <p className="text-sm mb-1">Seats Remaining : {course.seats}</p>
-        <p className="text-sm mb-1">Ranking : {course.ranking}</p>
-        <p className="text-sm mb-1">Location : {course.location}</p>
+        <p className="text-sm mb-1">Seats Remaining: {course.seats}</p>
+        <p className="text-sm mb-1">Ranking: {course.ranking}</p>
+        <p className="text-sm mb-1">Location: {course.location}</p>
       </div>
     );
   };
@@ -128,22 +148,32 @@ const StudentDashboard = () => {
                     <FaEnvelope className="mr-2" />
                     <span>{studentInfo.email}</span>
                   </div>
-                  <div className="flex items-center">
+                <div className="flex items-center">
                     <FaGraduationCap className="mr-2" />
-                    <span>Percentile: {studentInfo.percentile}</span>
+                    <span>Percentile : {studentInfo.percentile}</span>
+                  </div>
+                  <div className="flex items-center">
+                   <FaBook className="mr-2" />
+                  <span>Verification: {studentInfo.creditsCompleted}</span>
                   </div>
                   <div className="col-span-2 flex items-center">
                     <FaGraduationCap className="mr-2" />
-                    <span>Academic Standing: {studentInfo.academicStanding}</span>
+                    <span>Academic Standing : {studentInfo.academicStanding}</span>
                   </div>
                 </div>
+
+              
               </section>
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
                 <h2 className="text-xl font-semibold mb-4">Eligible Colleges</h2>
-                {courses.map((course, index) => (
-                  <CourseCard key={course.id} course={course} index={index} />
-                ))}
+                {courses.length > 0 ? (
+                  courses.map((course, index) => (
+                    <CourseCard key={course.id} course={course} index={index} />
+                  ))
+                ) : (
+                  <p>No eligible colleges available.</p>
+                )}
               </section>
             </div>
 
@@ -160,16 +190,20 @@ const StudentDashboard = () => {
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
                 <h2 className="text-xl font-semibold mb-4">Academic Progress</h2>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={progressData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="gpa" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
+                {progressData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={progressData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="gpa" stroke="#8884d8" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p>No academic progress data available.</p>
+                )}
               </section>
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
@@ -204,4 +238,3 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
-
