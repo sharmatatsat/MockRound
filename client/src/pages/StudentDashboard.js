@@ -1,35 +1,59 @@
-import React, { useState } from 'react';
-import { FaUser, FaEnvelope, FaGraduationCap, FaBook, FaBell, FaCalendar, FaPaperPlane, FaClock } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+// import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane } from 'react-icons/fa';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const StudentDashboard = () => {
   const [highContrast, setHighContrast] = useState(false);
-  const [courses, setCourses] = useState([
-    { id: 1, name: 'Mathematics 101', professor: 'Dr. Smith', grade: 'A', nextAssignment: 'Calculus Quiz', nextExam: 'Midterm Exam' },
-    { id: 2, name: 'Computer Science 202', professor: 'Prof. Johnson', grade: 'B+', nextAssignment: 'Programming Project', nextExam: 'Final Exam' },
-    { id: 3, name: 'Physics 301', professor: 'Dr. Brown', grade: 'A-', nextAssignment: 'Lab Report', nextExam: 'Quiz 3' },
-  ]);
-
-  const studentInfo = {
-    name: 'John Doe',
-    email: 'john.doe@university.edu',
-    gpa: 3.8,
-    creditsCompleted: 90,
-    academicStanding: 'Good Standing',
-  };
-
-  const notifications = [
+  const [courses, setCourses] = useState([]);
+  const [studentInfo, setStudentInfo] = useState({});
+  const [notifications, setNotifications] = useState([
     { id: 1, message: 'Registration for next semester opens tomorrow' },
     { id: 2, message: 'New scholarship opportunities available' },
-  ];
+  ]);
+  const [progressData, setProgressData] = useState([]);
+  const navigate = useNavigate();
 
-  const progressData = [
-    { name: 'Fall 2022', gpa: 3.6 },
-    { name: 'Spring 2023', gpa: 3.8 },
-    { name: 'Fall 2023', gpa: 3.9 },
-  ];
+  const fetchStudentData = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/student-data', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch student data');
+      }
+
+      const data = await response.json();
+      setStudentInfo(data.student);
+      setCourses([
+        { id: 1, name: 'MIT-WPU', seats: '100', ranking: '87', location: 'Pune' },
+        { id: 2, name: 'Symbiosis', seats: '200', ranking: '101', location: 'Pune' },
+        { id: 3, name: 'IIT Bombay', seats: '20', ranking: '2', location: 'Mumbai' },
+      ]);
+      setProgressData([
+        { name: 'Fall 2022', gpa: 3.6 },
+        { name: 'Spring 2023', gpa: 3.8 },
+        { name: 'Fall 2023', gpa: 3.9 },
+      ]);
+    } catch (error) {
+      console.error('Error fetching student data:', error.message);
+      navigate('/login'); // Redirect to login if there's an issue
+    }
+  };
+
+  useEffect(() => {
+    fetchStudentData();
+  }, []);
 
   const toggleHighContrast = () => {
     setHighContrast(!highContrast);
@@ -68,10 +92,9 @@ const StudentDashboard = () => {
         className={`p-4 mb-4 rounded-lg shadow-md ${highContrast ? 'bg-black text-white' : 'bg-white'} ${isDragging ? 'opacity-50' : 'opacity-100'}`}
       >
         <h3 className="text-lg font-semibold mb-2">{course.name}</h3>
-        <p className="text-sm mb-1">Professor: {course.professor}</p>
-        <p className="text-sm mb-1">Grade: {course.grade}</p>
-        <p className="text-sm mb-1">Next Assignment: {course.nextAssignment}</p>
-        <p className="text-sm">Next Exam: {course.nextExam}</p>
+        <p className="text-sm mb-1">Seats Remaining : {course.seats}</p>
+        <p className="text-sm mb-1">Ranking : {course.ranking}</p>
+        <p className="text-sm mb-1">Location : {course.location}</p>
       </div>
     );
   };
@@ -107,11 +130,7 @@ const StudentDashboard = () => {
                   </div>
                   <div className="flex items-center">
                     <FaGraduationCap className="mr-2" />
-                    <span>GPA: {studentInfo.gpa}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaBook className="mr-2" />
-                    <span>Credits: {studentInfo.creditsCompleted}</span>
+                    <span>Percentile: {studentInfo.percentile}</span>
                   </div>
                   <div className="col-span-2 flex items-center">
                     <FaGraduationCap className="mr-2" />
@@ -121,7 +140,7 @@ const StudentDashboard = () => {
               </section>
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
-                <h2 className="text-xl font-semibold mb-4">Enrolled Courses</h2>
+                <h2 className="text-xl font-semibold mb-4">Eligible Colleges</h2>
                 {courses.map((course, index) => (
                   <CourseCard key={course.id} course={course} index={index} />
                 ))}
@@ -157,16 +176,16 @@ const StudentDashboard = () => {
                 <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-blue-500 text-white'}`}>
-                    <FaBook className="mr-2" /> Course Materials
+                    <FaBook className="mr-2" /> Edit Info
                   </button>
                   <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-green-500 text-white'}`}>
-                    <FaPaperPlane className="mr-2" /> Submit Assignment
+                    <FaPaperPlane className="mr-2" /> Submit
                   </button>
                   <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-yellow-500 text-white'}`}>
-                    <FaEnvelope className="mr-2" /> Email Professor
+                    <FaEnvelope className="mr-2" /> Email College
                   </button>
                   <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-purple-500 text-white'}`}>
-                    <FaCalendar className="mr-2" /> Schedule Appointment
+                    <FaCalendar className="mr-2" /> Check Dates
                   </button>
                 </div>
               </section>
@@ -176,7 +195,7 @@ const StudentDashboard = () => {
 
         <footer className={`py-4 ${highContrast ? 'bg-white text-black' : 'bg-gray-200 text-gray-600'}`}>
           <div className="container mx-auto px-4 text-center">
-            <p>&copy; 2023 University Name. All rights reserved.</p>
+            <p>&copy; 2024 University Name. All rights reserved.</p>
           </div>
         </footer>
       </div>
@@ -185,3 +204,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

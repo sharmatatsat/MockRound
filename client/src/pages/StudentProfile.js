@@ -1,7 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiPhone, FiFileText, FiUpload } from 'react-icons/fi';
 import { IoMdSchool } from 'react-icons/io';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom';
+
+const branches = [
+  'Engineering & Technology',
+  'Science',
+  'Commerce',
+  'Arts & Humanities',
+  'Management',
+  'Medicine & Health Sciences',
+  'Law',
+  'Design & Arts',
+  'Architecture',
+  'Agriculture',
+  'Education',
+  'Hospitality & Travel',
+];
+
+const courses = {
+  'Engineering & Technology': [
+    'Computer Science Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering',
+    'Electronics and Communication Engineering',
+    'Information Technology',
+    'Chemical Engineering',
+    'Biotechnology',
+  ],
+  'Science': [
+    'BSc Physics',
+    'BSc Chemistry',
+    'BSc Biology'
+  ],
+  'Commerce': [
+    'BCom General',
+    'BCom Accounting',
+    'BCom Finance'
+  ],
+  'Arts & Humanities': [
+    'BA English',
+    'BA History',
+    'BA Political Science',
+    'BA Sociology',
+    'BA Philosophy'
+  ],
+  'Management': [
+    'BBA (Bachelor of Business Administration)',
+    'BMS (Bachelor of Management Studies)',
+    'BBM (Bachelor of Business Management)',
+    'BCom in Management'
+  ],
+  'Medicine & Health Sciences': [
+    'MBBS (Bachelor of Medicine, Bachelor of Surgery)',
+    'BDS (Bachelor of Dental Surgery)',
+    'BAMS (Bachelor of Ayurveda, Medicine, and Surgery)',
+    'BHMS (Bachelor of Homeopathic Medicine and Surgery)',
+    'BPT (Bachelor of Physiotherapy)'
+  ],
+  'Law': [
+    'LLB (Bachelor of Laws)',
+    'BA LLB (Integrated Program in Law)',
+    'BBA LLB (Integrated Program in Law)',
+    'LLM (Master of Laws)'
+  ],
+  'Design & Arts': [
+    'BDes (Bachelor of Design)',
+    'BFA (Bachelor of Fine Arts)',
+    'BArch (Bachelor of Architecture)',
+    'BVA (Bachelor of Visual Arts)'
+  ],
+  'Architecture': [
+    'BArch (Bachelor of Architecture)',
+    'BPlan (Bachelor of Planning)'
+  ],
+  'Agriculture': [
+    'BSc Agriculture',
+    'BSc Horticulture',
+    'BSc Forestry',
+    'BSc Animal Husbandry'
+  ],
+  'Education': [
+    'BEd (Bachelor of Education)',
+    'BA BEd (Integrated Program in Education)',
+    'BSc BEd (Integrated Program in Education)'
+  ],
+  'Hospitality & Travel': [
+    'BHM (Bachelor of Hotel Management)',
+    'BTTM (Bachelor of Travel and Tourism Management)',
+    'BBA in Hospitality Management',
+    'BSc in Hospitality and Catering Management'
+  ]
+};
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState({
@@ -17,10 +108,21 @@ const StudentProfile = () => {
     tenthMarksheet: null,
     twelfthMarksheet: null,
     entranceExamMarksheet: null,
+    branch: '',
+    course: '',
   });
 
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();  // Initialize navigate
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (profile.branch) {
+      setAvailableCourses(courses[profile.branch] || []);
+    } else {
+      setAvailableCourses([]);
+    }
+  }, [profile.branch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,14 +172,59 @@ const StudentProfile = () => {
     setErrors({ ...errors, [name]: error });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Perform final validation and submit logic here
-    console.log('Profile submitted:', profile);
-
-    // Redirect to the StudentDashboard page after successful submission
-    navigate('/student/dashboard');
+    
+    const formData = new FormData();
+    formData.append('phone', profile.phone);
+    formData.append('aadhar', profile.aadhar);
+    
+    // Correctly structure the marks fields
+    formData.append('marks[tenth]', profile.marks.tenth); 
+    formData.append('marks[twelfth]', profile.marks.twelfth);
+    formData.append('percentile', profile.percentile);
+    formData.append('branch', profile.branch);
+    formData.append('course', profile.course);
+    
+    // Append files
+    if (profile.tenthMarksheet) formData.append('tenthMarksheet', profile.tenthMarksheet);
+    if (profile.twelfthMarksheet) formData.append('twelfthMarksheet', profile.twelfthMarksheet);
+    if (profile.entranceExamMarksheet) formData.append('entranceExamMarksheet', profile.entranceExamMarksheet);
+    
+    const token = localStorage.getItem('token');  // Retrieve the token from localStorage
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/update', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Include the token
+        },
+        body: formData,  // Send formData as body
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();  // Get error message from response
+        throw new Error(errorData.error || 'Failed to submit profile');
+      }
+  
+      const result = await response.json();
+  
+      // Handle redirection based on backend response
+      if (result.redirect) {
+        navigate(result.redirect);  // Use the redirect URL from the response
+      } else {
+        console.log('Profile submitted:', result);
+      }
+  
+    } catch (error) {
+      console.error('Error submitting profile:', error.message);
+    }
   };
+  
+  
+
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center p-4">
@@ -147,7 +294,7 @@ const StudentProfile = () => {
                   name="tenth"
                   value={profile.marks.tenth}
                   onChange={handleMarksChange}
-                  className={`pl-10 w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.tenth ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`pl-10 w-full p-2 border rounded-md focus:ring-2                   focus:ring-indigo-500 ${errors.tenth ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="85"
                   min="0"
                   max="100"
@@ -239,6 +386,45 @@ const StudentProfile = () => {
             {errors.percentile && <p className="text-red-500 text-xs mt-1">{errors.percentile}</p>}
           </div>
 
+          {/* New branch dropdown */}
+          <div>
+            <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+            <select
+              id="branch"
+              name="branch"
+              value={profile.branch}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Select Branch</option>
+              {branches.map((branch) => (
+                <option key={branch} value={branch}>
+                  {branch}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* New course dropdown */}
+          <div>
+            <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-1">Course</label>
+            <select
+              id="course"
+              name="course"
+              value={profile.course}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+              disabled={!profile.branch}
+            >
+              <option value="">Select Course</option>
+              {availableCourses.map((course) => (
+                <option key={course} value={course}>
+                  {course}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* <div>
             <label htmlFor="caste" className="block text-sm font-medium text-gray-700 mb-1">Caste Category</label>
             <select
@@ -269,3 +455,4 @@ const StudentProfile = () => {
 };
 
 export default StudentProfile;
+

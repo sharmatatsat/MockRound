@@ -16,13 +16,13 @@ const AuthPages = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const userData = {
       email: email.trim(),
       password: password,
       name: name.trim(),
     };
-
+  
     if (isLogin) {
       // Login logic
       try {
@@ -33,11 +33,13 @@ const AuthPages = () => {
           },
           body: JSON.stringify({ email, password }),
         });
-
+  
         if (response.ok) {
           const data = await response.json();
           localStorage.setItem('token', data.token);
-          navigate('/student/profile');
+  
+          // Redirect to student dashboard or profile based on the response
+          window.location.href = data.redirectPath;  // Use redirectPath to navigate
         } else {
           const errorData = await response.json();
           setError(errorData.error || 'Login failed');
@@ -60,7 +62,7 @@ const AuthPages = () => {
             },
             body: JSON.stringify(userData),
           });
-
+  
           if (response.ok) {
             alert('Signup successful! Please check your email for verification.');
             setIsLogin(true); // Switch back to login after signup
@@ -74,6 +76,7 @@ const AuthPages = () => {
       }
     }
   };
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
