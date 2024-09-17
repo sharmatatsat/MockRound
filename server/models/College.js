@@ -1,19 +1,5 @@
 const mongoose = require('mongoose');
 
-const casteCategorySchema = new mongoose.Schema({
-    ST: { type: Number, required: true },
-    SC: { type: Number, required: true },
-    OBC: { type: Number, required: true },
-    General: { type: Number, required: true }
-});
-
-const courseCutoffSchema = new mongoose.Schema({
-    ST: { type: Number, required: true },
-    SC: { type: Number, required: true },
-    OBC: { type: Number, required: true },
-    General: { type: Number, required: true }
-});
-
 const collegeSchema = new mongoose.Schema({
     collegeName: { type: String, required: true },
     state: { type: String, required: true },
@@ -23,8 +9,7 @@ const collegeSchema = new mongoose.Schema({
     branch: { type: String },
     course: { type: String },
     coursesAvailable: { type: [String], required: true },
-    courseCutoffs: { type: Map, of: courseCutoffSchema },
-    casteCategoryCutOff: { type: casteCategorySchema, required: true },
+    courseCutoffs: { type: Number, required: true }, // Single cutoff for all categories
     minStudentCriteria: { type: Number, required: true },
     maxCriteria: { type: Number, required: true },
     spotRoundDates: { type: String, required: true },

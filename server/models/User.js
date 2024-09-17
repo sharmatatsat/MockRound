@@ -10,6 +10,19 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    profile: {
+        isComplete: {
+            type: Boolean,
+            default: false // By default, a new user's profile is incomplete
+        },
+        // You can add more fields to the profile as needed
+        name: String,
+        phone: String,
+        aadhar: String,
+        percentile: Number,
+        branch: String,
+        course: String
     }
 });
 
@@ -21,9 +34,10 @@ userSchema.pre('save', async function (next) {
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    next();
 });
 
-
+// Method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

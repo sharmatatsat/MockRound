@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const College = require('../models/College');
+const { updateProfile } = require('../controllers/collegeController'); 
 const { protect } = require('../middleware/authMiddleware');
 
-
 router.post('/add', protect, async (req, res) => {
+    console.log(req.user); // Log user to see if it's populated
+
     const {
         collegeName,
         state,
@@ -22,6 +24,10 @@ router.post('/add', protect, async (req, res) => {
         approvedBy
     } = req.body;
 
+    if (!req.user) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     try {
         const newCollege = new College({
             collegeName,
@@ -38,7 +44,7 @@ router.post('/add', protect, async (req, res) => {
             spotRoundDates,
             casteCategoryCutOff,
             approvedBy,
-            userId: req.user._id 
+            userId: req.user._id
         });
 
         await newCollege.save();
@@ -48,7 +54,8 @@ router.post('/add', protect, async (req, res) => {
     }
 });
 
-// Route to get all college entries
+router.put('/profile', protect, updateProfile);
+
 router.get('/entries', async (req, res) => {
     try {
         const colleges = await College.find();

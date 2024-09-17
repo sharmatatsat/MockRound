@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Student = require('../models/Student'); // Ensure this path is correct
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
 
@@ -37,7 +38,12 @@ exports.login = async (req, res) => {
         }
 
         const token = generateToken(user._id);
-        res.json({ _id: user._id, email: user.email, token });
+
+        // Determine the redirect path based on profile completion
+        const isProfileComplete = user.profile && user.profile.isComplete;
+        const redirectPath = isProfileComplete ? '/college/dashboard' : '/college/profile';
+
+        res.json({ _id: user._id, email: user.email, token, redirectPath });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
