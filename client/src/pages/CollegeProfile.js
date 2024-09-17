@@ -1,386 +1,355 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DeleteIcon } from '@chakra-ui/icons';
-import './CollegeProfilePage.css';
-
-import { states, cities, branches, courses } from '../data';
+import { states, cities, branches, courses } from '../data'; // Adjust path if necessary
 
 const CollegeProfilePage = () => {
-    const [college, setCollege] = useState({
-        collegeName: '',
-        state: '',
-        city: '',
-        address: '',
-        collegeCode: '',
-        branch: '',
-        course: '',
-        coursesAvailable: [],
-        cutOffSpotRound: '',
-        courseCutoffs: {}, 
-        casteCategoryCutOff: {
-            ST: '',
-            SC: '',
-            OBC: '',
-            General: ''
-        },
-        minStudentCriteria: '',
-        maxCriteria: '',
-        spotRoundDates: '', 
-        approvedBy: ''
-    });
+  const [profile, setProfile] = useState({
+    collegeName: '',
+    state: '',
+    city: '',
+    address: '',
+    collegeCode: '',
+    branch: '',
+    course: '',
+    coursesAvailable: [],
+    courseCutoffs: '',
+    minStudentCriteria: '',
+    maxCriteria: '',
+    spotRoundDates: '',
+    approvedBy: '',
+  });
 
-    const [availableCities, setAvailableCities] = useState([]);
-    const [availableCourses, setAvailableCourses] = useState([]);
-    const [courseInput, setCourseInput] = useState('');
-    const [manualCourseInput, setManualCourseInput] = useState('');
-    const [isOthersBranch, setIsOthersBranch] = useState(false);
-    const [errors, setErrors] = useState({});
-    const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [cityOptions, setCityOptions] = useState([]);
+  const [courseOptions, setCourseOptions] = useState([]);
+  const [addedCourses, setAddedCourses] = useState([]);
 
-    useEffect(() => {
-        if (college.state) {
-            setAvailableCities(cities[college.state] || []);
-        }
-    }, [college.state]);
 
-    useEffect(() => {
-        if (college.branch && college.branch !== 'Others') {
-            setAvailableCourses(courses[college.branch] || []);
-            setIsOthersBranch(false);
-        } else if (college.branch === 'Others') {
-            setIsOthersBranch(true);
-            setAvailableCourses([]);
-        }
-    }, [college.branch]);
+  useEffect(() => {
+    // Update city options based on selected state
+    if (profile.state) {
+      setCityOptions(cities[profile.state] || []);
+    } else {
+      setCityOptions([]);
+    }
+  }, [profile.state]);
 
-    const handleChange = (e) => {
-        const { name, value, type } = e.target;
-        const parsedValue = type === 'number' ? parseFloat(value) : value;
+  useEffect(() => {
+    // Update course options based on selected branch
+    if (profile.branch) {
+      setCourseOptions(courses[profile.branch] || []);
+    } else {
+      setCourseOptions([]);
+    }
+  }, [profile.branch]);
 
-        let newValue = parsedValue;
-        let error = '';
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile({ ...profile, [name]: value });
+  };
 
-        // Validate positive integers for minStudentCriteria and maxCriteria
-        if (name === 'minStudentCriteria' || name === 'maxCriteria') {
-            if (!Number.isInteger(Number(value)) || Number(value) <= 0) {
-                error = 'Must be a positive integer';
-            }
-        }
+  const handleAddCourse = () => {
+    if (profile.course) {
+      setAddedCourses([...addedCourses, profile.course]);
+      setProfile({ ...profile, course: '' }); // Clear the course after adding
+    }
+  };
 
-        if (['ST', 'SC', 'OBC', 'General'].includes(name)) {
-            setCollege(prevCollege => ({
-                ...prevCollege,
-                casteCategoryCutOff: {
-                    ...prevCollege.casteCategoryCutOff,
-                    [name]: newValue
-                }
-            }));
-        } else {
-            setCollege(prevCollege => ({
-                ...prevCollege,
-                [name]: newValue
-            }));
-        }
+  const handleRemoveCourse = (course) => {
+    setAddedCourses(addedCourses.filter((c) => c !== course));
+  };
+  
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
 
-        setErrors(prevErrors => ({
-            ...prevErrors,
-            [name]: error
-        }));
+    // Retrieve form element values
+    const collegeNameElem = document.getElementById('collegeName');
+    const stateElem = document.getElementById('state');
+    const cityElem = document.getElementById('city');
+    const addressElem = document.getElementById('address');
+    const collegeCodeElem = document.getElementById('collegeCode');
+    const branchElem = document.getElementById('branch');
+    const courseCutoffsElem = document.getElementById('courseCutoffs');
+    const minStudentCriteriaElem = document.getElementById('minStudentCriteria');
+    const maxCriteriaElem = document.getElementById('maxCriteria');
+    const spotRoundDatesElem = document.getElementById('spotRoundDates');
+    const approvedByElem = document.getElementById('approvedBy');
+
+    // Ensure added courses are included in the college data
+    const collegeData = {
+        collegeName: collegeNameElem.value.trim(),
+        state: stateElem.value.trim(),
+        city: cityElem.value.trim(),
+        address: addressElem.value.trim(),
+        collegeCode: collegeCodeElem.value.trim(),
+        branch: branchElem.value.trim(),
+        coursesAvailable: addedCourses, // Pass the added courses to the backend
+        courseCutoffs: courseCutoffsElem.value.trim(),
+        minStudentCriteria: minStudentCriteriaElem.value.trim(),
+        maxCriteria: maxCriteriaElem.value.trim(),
+        spotRoundDates: spotRoundDatesElem.value.trim(),
+        approvedBy: approvedByElem.value.trim()
     };
 
-    const handleCutoffChange = (e, courseName, category) => {
-        const { value } = e.target;
-        setCollege(prevCollege => ({
-            ...prevCollege,
-            courseCutoffs: {
-                ...prevCollege.courseCutoffs,
-                [courseName]: {
-                    ...prevCollege.courseCutoffs[courseName],
-                    [category]: value
-                }
-            }
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    try {
+        // Fetch token from localStorage
         const token = localStorage.getItem('token');
-    
-        // Perform final validation
-        let hasErrors = false;
-        const newErrors = {};
-    
-        if (!Number.isInteger(Number(college.minStudentCriteria)) || Number(college.minStudentCriteria) <= 0) {
-            newErrors.minStudentCriteria = 'Must be a positive integer';
-            hasErrors = true;
-        }
-    
-        if (!Number.isInteger(Number(college.maxCriteria)) || Number(college.maxCriteria) <= 0) {
-            newErrors.maxCriteria = 'Must be a positive integer';
-            hasErrors = true;
-        }
-    
-        // Ensure casteCategoryCutOff has default values
-        const casteCategoryCutOff = {
-            ST: college.casteCategoryCutOff.ST || 0,
-            SC: college.casteCategoryCutOff.SC || 0,
-            OBC: college.casteCategoryCutOff.OBC || 0,
-            General: college.casteCategoryCutOff.General || 0
-        };
-    
-        setErrors(newErrors);
-    
-        if (hasErrors) return;
-    
-        try {
-            const response = await fetch('http://localhost:5000/api/colleges/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...college,
-                    casteCategoryCutOff
-                })
-            });
-    
-            if (response.ok) {
-                const data = await response.json();
-                console.log('College added:', data);
-                alert('Registration Successful!');
-                // navigate('/entries');
-            } else {
-                const errorData = await response.json();
-                console.log('Failed to add college:', errorData);
-            }
-        } catch (error) {
-            console.log('Error:', error);
-        }
-    };
-    
 
-    const addCourse = () => {
-        if (college.branch === 'Others') {
-            if (manualCourseInput && !college.coursesAvailable.includes(manualCourseInput)) {
-                setCollege(prevCollege => ({
-                    ...prevCollege,
-                    coursesAvailable: [...prevCollege.coursesAvailable, manualCourseInput],
-                    courseCutoffs: {
-                        ...prevCollege.courseCutoffs,
-                        [manualCourseInput]: { ST: '', SC: '', OBC: '', General: '' } 
-                    }
-                }));
-                setManualCourseInput(''); 
-            }
-        } else {
-            if (courseInput && !college.coursesAvailable.includes(courseInput)) {
-                setCollege(prevCollege => ({
-                    ...prevCollege,
-                    coursesAvailable: [...prevCollege.coursesAvailable, courseInput],
-                    courseCutoffs: {
-                        ...prevCollege.courseCutoffs,
-                        [courseInput]: { ST: '', SC: '', OBC: '', General: '' } 
-                    }
-                }));
-                setCourseInput(''); 
-            }
+        if (!token) {
+            alert('Authentication token not found. Please log in.');
+            return;
         }
-    };
 
-    const removeCourse = (index) => {
-        const courseName = college.coursesAvailable[index];
-        setCollege(prevCollege => {
-            const { [courseName]: _, ...remainingCutoffs } = prevCollege.courseCutoffs;
-            return {
-                ...prevCollege,
-                coursesAvailable: prevCollege.coursesAvailable.filter((_, i) => i !== index),
-                courseCutoffs: remainingCutoffs
-            };
+        // Make the POST request to the backend
+        const response = await fetch('http://localhost:5000/api/colleges/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}` // Ensure token is sent in the Authorization header
+            },
+            body: JSON.stringify(collegeData),
         });
-    };
 
-    return (
-        <div className="profile-container" style={{ marginTop: "20px" }}>
-            <h1 className="profile-heading">College Profile</h1>
-            <form onSubmit={handleSubmit} className="profile-form">
-                <input
-                    type="text"
-                    name="collegeName"
-                    value={college.collegeName}
-                    onChange={handleChange}
-                    placeholder="College Name"
-                    required
-                />
-                {errors.collegeName && <div className="error-message">{errors.collegeName}</div>}
+        if (response.ok) {
+            const data = await response.json();
+            alert('College profile saved successfully!');
+        } else {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.message}`);
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        alert('An error occurred while saving the college profile');
+    }
+};
 
-                <select name="state" value={college.state} onChange={handleChange} required>
-                    <option value="" disabled>Select State</option>
-                    {states.map(state => (
-                        <option key={state} value={state}>{state}</option>
-                    ))}
-                </select>
-                {errors.state && <div className="error-message">{errors.state}</div>}
 
-                <select name="city" value={college.city} onChange={handleChange} required>
-                    <option value="" disabled>Select City</option>
-                    {availableCities.map(city => (
-                        <option key={city} value={city}>{city}</option>
-                    ))}
-                </select>
-                {errors.city && <div className="error-message">{errors.city}</div>}
+  
+  
 
-                <input
-                    type="text"
-                    name="address"
-                    value={college.address}
-                    onChange={handleChange}
-                    placeholder="Address"
-                    required
-                />
-                {errors.address && <div className="error-message">{errors.address}</div>}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-8 space-y-6 w-full max-w-2xl">
+        <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">College Profile</h2>
 
-                <input
-                    type="text"
-                    name="collegeCode"
-                    value={college.collegeCode}
-                    onChange={handleChange}
-                    placeholder="College Code"
-                    required
-                />
-                {errors.collegeCode && <div className="error-message">{errors.collegeCode}</div>}
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="collegeName" className="block text-sm font-medium text-gray-700 mb-1">College Name</label>
+            <input
+              type="text"
+              id="collegeName"
+              name="collegeName"
+              value={profile.collegeName}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.collegeName ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="College Name"
+            />
+            {errors.collegeName && <p className="text-red-500 text-xs mt-1">{errors.collegeName}</p>}
+          </div>
 
-                <select name="branch" value={college.branch} onChange={handleChange} required>
-                    <option value="" disabled>Select Branch</option>
-                    {branches.concat('Others').map(branch => (
-                        <option key={branch} value={branch}>{branch}</option>
-                    ))}
-                </select>
-                {errors.branch && <div className="error-message">{errors.branch}</div>}
+          <div>
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">State</label>
+            <select
+              id="state"
+              name="state"
+              value={profile.state}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
+            >
+              <option value="">Select State</option>
+              {states.map((state) => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+            {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+          </div>
 
-                {isOthersBranch && (
-                    <input
-                        type="text"
-                        name="manualCourse"
-                        value={manualCourseInput}
-                        onChange={(e) => setManualCourseInput(e.target.value)}
-                        placeholder="Enter Course"
-                    />
-                )}
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <select
+              id="city"
+              name="city"
+              value={profile.city}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+            >
+              <option value="">Select City</option>
+              {cityOptions.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+          </div>
 
-                {!isOthersBranch && (
-                    <select name="course" value={courseInput} onChange={(e) => setCourseInput(e.target.value)} required>
-                        <option value="" disabled>Select Course</option>
-                        {availableCourses.map(course => (
-                            <option key={course} value={course}>{course}</option>
-                        ))}
-                    </select>
-                )}
-                {errors.course && <div className="error-message">{errors.course}</div>}
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={profile.address}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Address"
+            />
+            {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+          </div>
 
-                <button type="button" className="add-course-btn" style={{ fontSize: "15px" }} onClick={addCourse}>Add Course</button>
+          <div>
+            <label htmlFor="collegeCode" className="block text-sm font-medium text-gray-700 mb-1">College Code</label>
+            <input
+              type="text"
+              id="collegeCode"
+              name="collegeCode"
+              value={profile.collegeCode}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.collegeCode ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="College Code"
+            />
+            {errors.collegeCode && <p className="text-red-500 text-xs mt-1">{errors.collegeCode}</p>}
+          </div>
 
-                <div className="course-list">
-                    {college.coursesAvailable.map((course, index) => (
-                        <div key={index} className="course-item" style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', margin: '10px 0' }}>
-                            <div className="course-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>{course}</div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeCourse(index)}
-                                    className="remove-course-btn"
-                                    style={{ fontSize: '12px', padding: '4px', backgroundColor: 'red' }}
-                                >
-                                    <DeleteIcon boxSize={12} />
-                                </button>
-                            </div>
-                            <input
-                                type="number"
-                                name={`ST-${course}`}
-                                value={college.courseCutoffs[course]?.ST || ''}
-                                onChange={(e) => handleCutoffChange(e, course, 'ST')}
-                                placeholder="ST Cut-off (%)"
-                                required
-                            />
-                            {errors[`ST-${course}`] && <div className="error-message">{errors[`ST-${course}`]}</div>}
-                            <input
-                                type="number"
-                                name={`SC-${course}`}
-                                value={college.courseCutoffs[course]?.SC || ''}
-                                onChange={(e) => handleCutoffChange(e, course, 'SC')}
-                                placeholder="SC Cut-off (%)"
-                                required
-                            />
-                            {errors[`SC-${course}`] && <div className="error-message">{errors[`SC-${course}`]}</div>}
-                            <input
-                                type="number"
-                                name={`OBC-${course}`}
-                                value={college.courseCutoffs[course]?.OBC || ''}
-                                onChange={(e) => handleCutoffChange(e, course, 'OBC')}
-                                placeholder="OBC Cut-off (%)"
-                                required
-                            />
-                            {errors[`OBC-${course}`] && <div className="error-message">{errors[`OBC-${course}`]}</div>}
-                            <input
-                                type="number"
-                                name={`General-${course}`}
-                                value={college.courseCutoffs[course]?.General || ''}
-                                onChange={(e) => handleCutoffChange(e, course, 'General')}
-                                placeholder="General Cut-off (%)"
-                                required
-                            />
-                            {errors[`General-${course}`] && <div className="error-message">{errors[`General-${course}`]}</div>}
-                        </div>
-                    ))}
-                </div>
+          <div>
+            <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+            <select
+              id="branch"
+              name="branch"
+              value={profile.branch}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.branch ? 'border-red-500' : 'border-gray-300'}`}
+            >
+              <option value="">Select Branch</option>
+              {branches.map((branch) => (
+                <option key={branch} value={branch}>{branch}</option>
+              ))}
+            </select>
+            {errors.branch && <p className="text-red-500 text-xs mt-1">{errors.branch}</p>}
+          </div>
 
-                <input
-                    type="date"
-                    name="spotRoundDates"
-                    value={college.spotRoundDates}
-                    onChange={handleChange}
-                    required
-                />
-                {errors.spotRoundDates && <div className="error-message">{errors.spotRoundDates}</div>}
+          <div>
+            <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-1">Course</label>
+            <select
+              id="course"
+              name="course"
+              value={profile.course}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.course ? 'border-red-500' : 'border-gray-300'}`}
+            >
+              <option value="">Select Course</option>
+              {courseOptions.map((course) => (
+                <option key={course} value={course}>{course}</option>
+              ))}
+            </select>
+            {errors.course && <p className="text-red-500 text-xs mt-1">{errors.course}</p>}
+          </div>
 
-                <input
-                    type="text"
-                    name="minStudentCriteria"
-                    value={college.minStudentCriteria}
-                    onChange={handleChange}
-                    placeholder="Minimum Student Criteria"
-                    required
-                />
-                {errors.minStudentCriteria && <div className="error-message">{errors.minStudentCriteria}</div>}
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={handleAddCourse}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Add Course
+            </button>
+          </div>
+              {/* Display added courses */}
+              {addedCourses.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-lg font-medium text-gray-700">Added Courses</h3>
+              <div className="space-y-2 mt-2">
+                {addedCourses.map((course, index) => (
+                  <div key={index} className="flex justify-between items-center bg-indigo-100 text-indigo-800 p-2 rounded-md shadow-sm">
+                    <span>{course}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCourse(course)}
+                      className="text-red-500 hover:text-red-700 focus:outline-none"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <label htmlFor="courseCutoffs" className="block text-sm font-medium text-gray-700 mb-1">Course Cutoffs</label>
+            <input
+              type="text"
+              id="courseCutoffs"
+              name="courseCutoffs"
+              value={profile.courseCutoffs}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.courseCutoffs ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Course Cutoffs"
+            />
+            {errors.courseCutoffs && <p className="text-red-500 text-xs mt-1">{errors.courseCutoffs}</p>}
+          </div>
 
-                <input
-                    type="text"
-                    name="maxCriteria"
-                    value={college.maxCriteria}
-                    onChange={handleChange}
-                    placeholder="Maximum Criteria"
-                    required
-                />
-                {errors.maxCriteria && <div className="error-message">{errors.maxCriteria}</div>}
+          <div>
+            <label htmlFor="minStudentCriteria" className="block text-sm font-medium text-gray-700 mb-1">Minimum Student Criteria</label>
+            <input
+              type="text"
+              id="minStudentCriteria"
+              name="minStudentCriteria"
+              value={profile.minStudentCriteria}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.minStudentCriteria ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Minimum Student Criteria"
+            />
+            {errors.minStudentCriteria && <p className="text-red-500 text-xs mt-1">{errors.minStudentCriteria}</p>}
+          </div>
 
-                <select
-                    name="approvedBy"
-                    value={college.approvedBy}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="" disabled>Approved By</option>
-                    <option value="UGC">UGC</option>
-                    <option value="AICTE">AICTE</option>
-                    <option value="NBA">NBA</option>
-                    <option value="Others">Others</option>
-                </select>
-                {errors.approvedBy && <div className="error-message">{errors.approvedBy}</div>}
+          <div>
+            <label htmlFor="maxCriteria" className="block text-sm font-medium text-gray-700 mb-1">Maximum Criteria</label>
+            <input
+              type="text"
+              id="maxCriteria"
+              name="maxCriteria"
+              value={profile.maxCriteria}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.maxCriteria ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Maximum Criteria"
+            />
+            {errors.maxCriteria && <p className="text-red-500 text-xs mt-1">{errors.maxCriteria}</p>}
+          </div>
 
-                <button type="submit" style={{ fontSize: '16px' }}>Submit</button>
-            </form>
+          <div>
+            <label htmlFor="spotRoundDates" className="block text-sm font-medium text-gray-700 mb-1">Spot Round Dates</label>
+            <input
+              type="date"
+              id="spotRoundDates"
+              name="spotRoundDates"
+              value={profile.spotRoundDates}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.spotRoundDates ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            {errors.spotRoundDates && <p className="text-red-500 text-xs mt-1">{errors.spotRoundDates}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="approvedBy" className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+            <input
+              type="text"
+              id="approvedBy"
+              name="approvedBy"
+              value={profile.approvedBy}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.approvedBy ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Approved By"
+            />
+            {errors.approvedBy && <p className="text-red-500 text-xs mt-1">{errors.approvedBy}</p>}
+          </div>
         </div>
-    );
+
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Save
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default CollegeProfilePage;

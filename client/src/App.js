@@ -10,7 +10,7 @@ import StudentsPage from './pages/AdminStudent';
 import CollegesPage from './pages/AdminCollege'; 
 import LandingPage from './pages/LandingPage';
 import StudentDashboard from './pages/StudentDashboard';
-
+import AdminLogin from './pages/AdminLoginPage';
 
 function App() {
     return (
@@ -18,8 +18,8 @@ function App() {
             <Routes>
                 {/* College Routes */}
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/signup" element={<CollegeSignupPage />} />
-                <Route path="/profile" element={<CollegeProfilePage />} />
+                <Route path="/college/login" element={<CollegeLoginPage/>} />
+                <Route path="/college/profile" element={<CollegeProfilePage />} />
 
                 {/* Student Routes */}
                 {/* <Route path="/student/signup" element={<StudentSignupPage />} /> */}
@@ -28,7 +28,8 @@ function App() {
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
 
                  {/* Admin Routes */}
-                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/students" element={<StudentsPage />} />
                 <Route path="/admin/colleges" element={<CollegesPage />} />
             </Routes>

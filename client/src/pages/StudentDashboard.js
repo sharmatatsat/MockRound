@@ -28,7 +28,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       const token = localStorage.getItem('token');
-      
+  
       try {
         const response = await fetch('http://localhost:5000/api/profile/student-data', {
           method: 'GET',
@@ -44,10 +44,10 @@ const StudentDashboard = () => {
   
         const data = await response.json();
         console.log('Fetched student data:', data);
-        
+  
         const percentile = data.profile?.percentile;
         const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";
-        
+  
         setStudentInfo({
           ...data.student,
           percentile: percentile || 'N/A',
@@ -56,21 +56,34 @@ const StudentDashboard = () => {
         });
   
         // Update progressData with percentile values
-        // You can map this data to reflect different assessments or time periods
         setProgressData([
           { name: 'Assessment 1', percentile: 85 },
           { name: 'Assessment 2', percentile: 90 },
           { name: 'Assessment 3', percentile: 95 },
-          { name: 'Current', percentile: percentile },
+          { name: 'Current', percentile: percentile || 0 }, // Ensure percentile is a number
         ]);
+  
+        // Fetch eligible colleges
+        if (percentile !== undefined) {
+          const collegeResponse = await fetch('http://localhost:5000/api/colleges/entries');
+          if (!collegeResponse.ok) {
+            throw new Error('Failed to fetch college data');
+          }
+          const colleges = await collegeResponse.json();
+  
+          // Filter colleges where the cutoff is less than or equal to the student's percentile
+          const eligibleColleges = colleges.filter(college => college.courseCutoffs <= percentile);
+          setCourses(eligibleColleges);
+        }
       } catch (error) {
         console.error('Error fetching student data:', error.message);
-        navigate('/login'); 
+        navigate('/student/login');
       }
     };
   
     fetchStudentData();
   }, [navigate]);
+  
   
   
 
