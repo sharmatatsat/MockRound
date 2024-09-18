@@ -17,13 +17,13 @@ const AdminDashboard = () => {
     // Fetch student data from the backend API when the component loads
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(' http://localhost:5000/api/admin/profiles/all'); // Adjust the endpoint as per your backend
+        const response = await axios.get('http://localhost:5000/api/admin/profiles/all'); // Adjust the endpoint as per your backend
         setStudents(response.data); // Assuming response contains student data
       } catch (error) {
         console.error('Error fetching student data:', error);
       }
     };
-
+  
     fetchStudents();
   }, []);
 
@@ -125,24 +125,24 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id} className={`${darkMode ? 'border-b border-gray-700' : 'border-b'}`}>
-                      <td className="px-4 py-2">{student.name}</td>
-                      <td className="px-4 py-2">{student.email}</td>
-                      <td className="px-4 py-2">{student.course}</td>
-                      <td className="px-4 py-2">{student.percentile}</td>
-                      <td className="px-4 py-2">
-                        <a href={student.entranceExamMarksheet} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                          View Marksheet
-                        </a>
-                      </td>
-                      <td className="px-4 py-2">
-                        <button className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}>Edit</button>
-                        <button className={`px-3 py-1 rounded ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}>Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+  {students.map((profile) => (
+    <tr key={profile._id} className={`${darkMode ? 'border-b border-gray-700' : 'border-b'}`}>
+      <td className="px-4 py-2">{profile.student?.name}</td> {/* Use profile.student.name */}
+      <td className="px-4 py-2">{profile.student?.email}</td> {/* Use profile.student.email */}
+      <td className="px-4 py-2">{profile.course}</td>
+      <td className="px-4 py-2">{profile.percentile}</td>
+      <td className="px-4 py-2">
+        <a href={profile.entranceExamMarksheet} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+          View Marksheet
+        </a>
+      </td>
+      <td className="px-4 py-2">
+        <button className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}>Edit</button>
+        <button className={`px-3 py-1 rounded ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}>Delete</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
               </table>
             </div>
           </div>
