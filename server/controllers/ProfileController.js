@@ -67,30 +67,32 @@ exports.saveStudentData = async (req, res) => {
     }
   };
 
-exports.checkProfileCompletion = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-
-  if (!token) {
-    return res.status(401).json({ error: 'Authentication required' }); 
-  }
-
-  try {
-    const decoded = jwt.verify(token, 'secretkey');
-    const student = await Student.findById(decoded.id);
-
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' }); 
+  exports.checkProfileCompletion = async (req, res) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+  
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required' });
     }
-
-    if (student.profileCompleted) {
-      res.json({ redirect: '/student/dashboard' }); 
-    } else {
-      res.json({ redirect: '/student/profile' }); 
+  
+    try {
+      const decoded = jwt.verify(token, 'secretkey');
+      const student = await Student.findById(decoded.id);
+  
+      if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
+      }
+  
+      // Return the appropriate redirect path based on profile completion
+      if (student.profileCompleted) {
+        res.json({ redirectPath: '/student/dashboard' });
+      } else {
+        res.json({ redirectPath: '/student/profile' });
+      }
+    } catch (error) {
+      console.error('Error verifying token or checking profile:', error);
+      res.status(401).json({ error: 'Invalid token' });
     }
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' }); 
-  }
-};
+  };
 
 
 exports.getStudentData = async (req, res) => {
