@@ -82,7 +82,6 @@ exports.saveStudentData = async (req, res) => {
         return res.status(404).json({ error: 'Student not found' });
       }
   
-      // Return the appropriate redirect path based on profile completion
       if (student.profileCompleted) {
         res.json({ redirectPath: '/student/dashboard' });
       } else {
