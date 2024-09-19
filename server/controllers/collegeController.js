@@ -1,5 +1,6 @@
 const College = require('../models/College');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 exports.updateProfile = async (req, res) => {
         const {
@@ -52,32 +53,68 @@ exports.updateProfile = async (req, res) => {
 
 
 
+// exports.addCollege = async (req, res) => {
+//     console.log('Authenticated User:', req.user);
+
+//     const {
+//         collegeName,
+//         state,
+//         city,
+//         address,
+//         collegeCode,
+//         branch,
+//         course,
+//         coursesAvailable,
+//         courseCutoffs,
+//         minStudentCriteria,
+//         maxCriteria,
+//         spotRoundDates,
+//         casteCategoryCutOff,
+//         approvedBy
+//     } = req.body;
+
+//     if (!req.user) {
+//         return res.status(401).json({ message: 'User not authenticated' });
+//     }
+
+//     try {
+//         const newCollege = new College({
+//             collegeName,
+//             state,
+//             city,
+//             address,
+//             collegeCode,
+//             branch,
+//             course,
+//             coursesAvailable,
+//             courseCutoffs,
+//             minStudentCriteria,
+//             maxCriteria,
+//             spotRoundDates,
+//             casteCategoryCutOff,
+//             approvedBy,
+//             userId: req.user._id
+//         });
+
+//         await newCollege.save();
+//         res.status(201).json(newCollege);
+//     } catch (error) {
+//         res.status(400).json({ message: error.message });
+//     }
+// };
+
 exports.addCollege = async (req, res) => {
-    console.log('Authenticated User:', req.user);
+    const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    const {
-        collegeName,
-        state,
-        city,
-        address,
-        collegeCode,
-        branch,
-        course,
-        coursesAvailable,
-        courseCutoffs,
-        minStudentCriteria,
-        maxCriteria,
-        spotRoundDates,
-        casteCategoryCutOff,
-        approvedBy
-    } = req.body;
-
-    if (!req.user) {
-        return res.status(401).json({ message: 'User not authenticated' });
+    if (!token) {
+        return res.status(401).json({ error: 'Authentication required' });
     }
 
     try {
-        const newCollege = new College({
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey'); // Use the same secret as when signing the token
+        const userId = decoded.id; // Assuming the id is stored in the token payload
+
+        const {
             collegeName,
             state,
             city,
@@ -90,17 +127,42 @@ exports.addCollege = async (req, res) => {
             minStudentCriteria,
             maxCriteria,
             spotRoundDates,
-            casteCategoryCutOff,
-            approvedBy,
-            userId: req.user._id
-        });
+            approvedBy
+        } = req.body;
 
-        await newCollege.save();
-        res.status(201).json(newCollege);
+        // Update using userId instead of college field
+        let college = await College.findOneAndUpdate(
+            { userId: userId }, // Use userId to find the correct document
+            {
+                collegeName,
+                state,
+                city,
+                address,
+                collegeCode,
+                branch,
+                course,
+                coursesAvailable,
+                courseCutoffs,
+                minStudentCriteria,
+                maxCriteria,
+                spotRoundDates,
+                approvedBy,
+            },
+            { new: true, upsert: true }
+        );
+
+        // Optionally update the profile status
+        await College.findByIdAndUpdate(college._id, { profileCompleted: true });
+
+        res.json({ message: 'College Profile saved successfully!' });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error saving profile:', error);
+        res.status(400).json({ error: error.message });
     }
 };
+
+
+
 
 exports.getColleges = async (req, res) => {
     try {
