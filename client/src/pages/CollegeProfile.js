@@ -34,7 +34,7 @@ const CollegeProfilePage = () => {
   }, [profile.state]);
 
   useEffect(() => {
-    // Update course options based on selected branch
+    
     if (profile.branch) {
       setCourseOptions(courses[profile.branch] || []);
     } else {
@@ -50,7 +50,7 @@ const CollegeProfilePage = () => {
   const handleAddCourse = () => {
     if (profile.course) {
       setAddedCourses([...addedCourses, profile.course]);
-      setProfile({ ...profile, course: '' }); // Clear the course after adding
+      setProfile({ ...profile, course: '' }); 
     }
   };
 
@@ -59,74 +59,52 @@ const CollegeProfilePage = () => {
   };
   
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission
-
-    // Retrieve form element values
-    const collegeNameElem = document.getElementById('collegeName');
-    const stateElem = document.getElementById('state');
-    const cityElem = document.getElementById('city');
-    const addressElem = document.getElementById('address');
-    const collegeCodeElem = document.getElementById('collegeCode');
-    const branchElem = document.getElementById('branch');
-    const courseCutoffsElem = document.getElementById('courseCutoffs');
-    const minStudentCriteriaElem = document.getElementById('minStudentCriteria');
-    const maxCriteriaElem = document.getElementById('maxCriteria');
-    const spotRoundDatesElem = document.getElementById('spotRoundDates');
-    const approvedByElem = document.getElementById('approvedBy');
-
-    // Ensure added courses are included in the college data
+    event.preventDefault(); 
+  
+   
     const collegeData = {
-        collegeName: collegeNameElem.value.trim(),
-        state: stateElem.value.trim(),
-        city: cityElem.value.trim(),
-        address: addressElem.value.trim(),
-        collegeCode: collegeCodeElem.value.trim(),
-        branch: branchElem.value.trim(),
-        coursesAvailable: addedCourses, // Make sure addedCourses is defined elsewhere and holds the list of added courses
-        courseCutoffs: Number(courseCutoffsElem.value.trim()), // Ensure it's a number as per your schema
-        minStudentCriteria: Number(minStudentCriteriaElem.value.trim()), // Ensure it's a number
-        maxCriteria: Number(maxCriteriaElem.value.trim()), // Ensure it's a number
-        spotRoundDates: spotRoundDatesElem.value.trim(),
-        approvedBy: approvedByElem.value.trim()
+      collegeName: profile.collegeName.trim(),
+      state: profile.state.trim(),
+      city: profile.city.trim(),
+      address: profile.address.trim(),
+      collegeCode: profile.collegeCode.trim(),
+      branch: profile.branch.trim(),
+      coursesAvailable: addedCourses, 
+      courseCutoffs: Number(profile.courseCutoffs.trim()),
+      minStudentCriteria: Number(profile.minStudentCriteria.trim()), 
+      maxCriteria: Number(profile.maxCriteria.trim()), 
+      spotRoundDates: profile.spotRoundDates.trim(),
+      approvedBy: profile.approvedBy.trim(),
     };
-
+  
     try {
-
       const token = localStorage.getItem('token');
       if (!token) {
-      console.error('Token not found in localStorage.');
-      alert('Authentication token not found. Please log in.');
-      return;
+        alert('Authentication token not found. Please log in.');
+        return;
       }
-
-        if (!token) {
-            alert('Authentication token not found. Please log in.');
-            return;
-        }
-
-        const response = await fetch('http://localhost:5000/api/colleges/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}` // Ensure token is sent in the Authorization header
-            },
-            body: JSON.stringify(collegeData),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            alert('College profile saved successfully!');
-            // Optionally, you can clear the form fields here or redirect the user.
-        } else {
-            const errorData = await response.json();
-            alert(`Error: ${errorData.message}`);
-        }
+  
+      const response = await fetch('http://localhost:5000/api/colleges/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, 
+        },
+        body: JSON.stringify(collegeData),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        alert('College profile saved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
     } catch (error) {
-        console.error('Save error:', error);
-        alert('An error occurred while saving the college profile');
+      console.error('Save error:', error);
+      alert('An error occurred while saving the college profile');
     }
-};
-
+  };
 
   
   
