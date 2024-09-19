@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { states, cities, branches, courses } from '../data'; // Adjust path if necessary
+import { states, cities, branches, courses } from '../data'; 
 
 const CollegeProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -82,24 +82,28 @@ const CollegeProfilePage = () => {
         address: addressElem.value.trim(),
         collegeCode: collegeCodeElem.value.trim(),
         branch: branchElem.value.trim(),
-        coursesAvailable: addedCourses, // Pass the added courses to the backend
-        courseCutoffs: courseCutoffsElem.value.trim(),
-        minStudentCriteria: minStudentCriteriaElem.value.trim(),
-        maxCriteria: maxCriteriaElem.value.trim(),
+        coursesAvailable: addedCourses, // Make sure addedCourses is defined elsewhere and holds the list of added courses
+        courseCutoffs: Number(courseCutoffsElem.value.trim()), // Ensure it's a number as per your schema
+        minStudentCriteria: Number(minStudentCriteriaElem.value.trim()), // Ensure it's a number
+        maxCriteria: Number(maxCriteriaElem.value.trim()), // Ensure it's a number
         spotRoundDates: spotRoundDatesElem.value.trim(),
         approvedBy: approvedByElem.value.trim()
     };
 
     try {
-        // Fetch token from localStorage
-        const token = localStorage.getItem('token');
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+      console.error('Token not found in localStorage.');
+      alert('Authentication token not found. Please log in.');
+      return;
+      }
 
         if (!token) {
             alert('Authentication token not found. Please log in.');
             return;
         }
 
-        // Make the POST request to the backend
         const response = await fetch('http://localhost:5000/api/colleges/add', {
             method: 'POST',
             headers: {
@@ -112,6 +116,7 @@ const CollegeProfilePage = () => {
         if (response.ok) {
             const data = await response.json();
             alert('College profile saved successfully!');
+            // Optionally, you can clear the form fields here or redirect the user.
         } else {
             const errorData = await response.json();
             alert(`Error: ${errorData.message}`);

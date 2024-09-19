@@ -48,7 +48,7 @@ const LandingPage = () => {
                                         <button onClick={() => handleSignupClick('/student/login')} className="w-full text-left">Student</button>
                                     </li>
                                     <li className="block px-4 py-2 text-gray-800 hover:bg-blue-100">
-                                        <button onClick={() => handleSignupClick('/student/login')} className="w-full text-left">College</button>
+                                        <button onClick={() => handleSignupClick('/college/login')} className="w-full text-left">College</button>
                                     </li>
                                 </ul>
                             )}

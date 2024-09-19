@@ -16,7 +16,7 @@ const AuthPages = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    console.log("Attempting login with: ", email, password);
     const userData = {
       email: email.trim(),
       password: password,
@@ -26,7 +26,7 @@ const AuthPages = () => {
     if (isLogin) {
       // Login logic
       try {
-        const response = await fetch('http://localhost:5000/api/students/login', {
+        const response = await fetch('http://localhost:5000/api/auth/loginStudent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const AuthPages = () => {
         setError('Please accept the terms and conditions');
       } else {
         try {
-          const response = await fetch('http://localhost:5000/api/students/signup', {
+          const response = await fetch('http://localhost:5000/api/auth/signupStudent', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

@@ -44,6 +44,7 @@ const StudentDashboard = () => {
   
         const data = await response.json();
         console.log('Fetched student data:', data);
+        console.log('Received Token : ',token);
   
         const percentile = data.profile?.percentile;
         const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";

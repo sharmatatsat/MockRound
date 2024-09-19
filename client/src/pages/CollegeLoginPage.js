@@ -55,10 +55,10 @@ const AuthPages = () => {
         localStorage.setItem('token', data.token);
         console.log('Received token:', data.token); // Debug line to check token value
         if (isLogin) {
-          navigate(data.redirectPath); // Use navigate instead of window.location.href
+          navigate(data.redirectPath); 
         } else {
           alert('Signup successful! Please check your email for verification.');
-          setIsLogin(true); // Switch back to login after signup
+          setIsLogin(true); 
         }
       } else {
         const errorData = await response.json();
