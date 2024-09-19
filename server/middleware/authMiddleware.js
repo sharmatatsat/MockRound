@@ -1,51 +1,31 @@
 const jwt = require('jsonwebtoken');
-const Student = require('../models/Student'); // Ensure this path is correct
-const Profile = require('../models/Profile'); // Ensure this path is correct
-const College = require('../models/College'); // Ensure this path is correct
-const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
 
-const protect = async (req, res, next) => {
-  let token;
+exports.protect = (req, res, next) => {
+  // Get the token from the authorization header
+  const authHeader = req.headers.authorization;
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  // Check if the token exists and starts with 'Bearer '
+  if (authHeader && authHeader.startsWith('Bearer')) {
+    // Extract the token (remove 'Bearer ' prefix)
+    const token = authHeader.split(' ')[1];
+
     try {
-      // Get token from the authorization header
-      token = req.headers.authorization.split(' ')[1];
+      // Verify the token using the secret key
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Verify token
-      const decoded = jwt.verify(token, JWT_SECRET);
+      // Attach the decoded user (usually includes user id) to the request
+      req.user = decoded;
 
-      // Attempt to find a student, profile, or college based on decoded token id
-      let user = await Student.findById(decoded.id).select('-password');
-
-      // If no student is found, look for the profile
-      if (!user) {
-        user = await Profile.findById(decoded.id).select('-password');
-      }
-
-      // If no profile is found, look for the college
-      if (!user) {
-        user = await College.findById(decoded.id).select('-password');
-      }
-
-      // If no user (student, profile, or college) is found, return an error
-      if (!user) {
-        return res.status(401).json({ message: 'User not found' });
-      }
-
-      // Attach the found user (student, profile, or college) to req.user
-      req.user = user;
-      
+      // Proceed to the next middleware or route handler
       next();
-    } catch (error) {
-      console.error('Authentication error:', error);
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+    } catch (err) {
+      // Token is invalid or expired
+      return res.status(401).json({ message: 'Invalid token' });
     }
-  }
-
-  if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+  } else {
+    // No token provided or malformed header
+    return res.status(401).json({ message: 'No token, authorization denied' });
   }
 };
 
-module.exports = { protect };
+// module.exports = { protect };

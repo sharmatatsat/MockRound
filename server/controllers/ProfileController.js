@@ -23,7 +23,7 @@ exports.handleFileUploads = upload.fields([
   { name: 'entranceExamMarksheet', maxCount: 1 }
 ]);
 
-// Function to save student data
+
 exports.saveStudentData = async (req, res) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
   
@@ -60,18 +60,18 @@ exports.saveStudentData = async (req, res) => {
   
       await Student.findByIdAndUpdate(studentId, { profileCompleted: true });
   
-      res.json({ redirect: '/student/dashboard' }); // JSON response for redirection
+      res.json({ redirect: '/student/dashboard' }); 
     } catch (error) {
       console.error('Error saving profile:', error);
       res.status(400).json({ error: error.message });
     }
   };
-// Redirect based on profile completion
+
 exports.checkProfileCompletion = async (req, res) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
-    return res.status(401).json({ error: 'Authentication required' }); // JSON response
+    return res.status(401).json({ error: 'Authentication required' }); 
   }
 
   try {
@@ -79,16 +79,16 @@ exports.checkProfileCompletion = async (req, res) => {
     const student = await Student.findById(decoded.id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student not found' }); // JSON response
+      return res.status(404).json({ error: 'Student not found' }); 
     }
 
     if (student.profileCompleted) {
-      res.json({ redirect: '/student/dashboard' }); // JSON response for redirection
+      res.json({ redirect: '/student/dashboard' }); 
     } else {
-      res.json({ redirect: '/student/profile' }); // JSON response for redirection
+      res.json({ redirect: '/student/profile' }); 
     }
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' }); // JSON response
+    res.status(401).json({ error: 'Invalid token' }); 
   }
 };
 

@@ -14,15 +14,15 @@ const userSchema = new mongoose.Schema({
     profile: {
         isComplete: {
             type: Boolean,
-            default: false // By default, a new user's profile is incomplete
+            default: false 
         },
         // You can add more fields to the profile as needed
-        name: String,
-        phone: String,
-        aadhar: String,
-        percentile: Number,
-        branch: String,
-        course: String
+        // name: String,
+        // phone: String,
+        // aadhar: String,
+        // percentile: Number,
+        // branch: String,
+        // course: String
     }
 });
 

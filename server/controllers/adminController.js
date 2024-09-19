@@ -15,6 +15,35 @@ exports.getColleges = async (req, res) => {
     }
 };
 
+exports.deleteStudentProfile = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deletedProfile = await Profile.findByIdAndDelete(id);
+      
+      if (!deletedProfile) {
+        return res.status(404).json({ message: 'Profile not found' });
+      }
+  
+      res.status(200).json({ message: 'Profile deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };
+
+exports.updateStudentProfile = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updatedProfile = await Profile.findByIdAndUpdate(id, req.body, { new: true });
+      
+      if (!updatedProfile) {
+        return res.status(404).json({ message: 'Profile not found' });
+      }
+  
+      res.status(200).json(updatedProfile);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };
 // Controller to get all student profiles with specific attributes
 exports.getProfiles = async (req, res) => {
     try {
@@ -81,17 +110,27 @@ exports.addCollege = async (req, res) => {
 };
 
 // Controller to update a college
+// adminController.js
 exports.updateCollege = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const updatedCollege = await College.findByIdAndUpdate(id, req.body, { new: true });
-        if (!updatedCollege) return res.status(404).json({ message: 'College not found' });
-        res.status(200).json(updatedCollege);
-    } catch (error) {
-        console.error('Error updating college:', error);
-        res.status(500).json({ message: 'Error updating college', error });
+    const collegeId = req.params.id;
+    console.log('College ID:', collegeId); // Debug log
+  
+    if (!mongoose.Types.ObjectId.isValid(collegeId)) {
+      return res.status(400).json({ message: 'Invalid college ID' });
     }
-};
+  
+    try {
+      const updatedCollege = await College.findByIdAndUpdate(collegeId, req.body, { new: true });
+      if (!updatedCollege) {
+        return res.status(404).json({ message: 'College not found' });
+      }
+  
+      res.json(updatedCollege);
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating college', error });
+    }
+  };
+  
 
 // Controller to get a single student's details by ID
 exports.getStudentById = async (req, res) => {
@@ -103,5 +142,41 @@ exports.getStudentById = async (req, res) => {
     } catch (error) {
         console.error('Error fetching student by ID:', error);
         res.status(500).json({ message: 'Error fetching student by ID', error });
+    }
+};
+
+
+exports.getCollegesWithAttributes = async (req, res) => {
+    try {
+        // Fetch colleges with specific attributes
+        const colleges = await College.find({}, 'collegeName state city coursesAvailable courseCutoffs');
+        res.status(200).json(colleges);
+    } catch (error) {
+        console.error('Error fetching colleges with specific attributes:', error);
+        res.status(500).json({ message: 'Error fetching colleges with specific attributes', error });
+    }
+};
+
+// exports.updateCollege = async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         const updatedCollege = await College.findByIdAndUpdate(id, req.body, { new: true });
+//         if (!updatedCollege) return res.status(404).json({ message: 'College not found' });
+//         res.status(200).json(updatedCollege);
+//     } catch (error) {
+//         console.error('Error updating college:', error);
+//         res.status(500).json({ message: 'Error updating college', error });
+//     }
+// };
+
+// Controller to delete a college
+exports.deleteCollege = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await College.findByIdAndDelete(id);
+        if (!result) return res.status(404).json({ message: 'College not found' });
+        res.status(200).json({ message: 'College deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
     }
 };

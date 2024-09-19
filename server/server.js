@@ -6,7 +6,6 @@ const dotenv = require('dotenv');
 const collegeRoutes = require('./routes/collegeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
-const collegesRoutes = require('./routes/colleges');
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profileRoutes');
 const fileRoutes = require('./routes/fileRoutes'); 
@@ -37,8 +36,7 @@ app.set('jwt_secret', process.env.JWT_SECRET || 'secretkey');
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);
-app.use('/api/students', studentRoutes);
-app.use('/api/collegess', collegesRoutes);
+// app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/files', fileRoutes); 
