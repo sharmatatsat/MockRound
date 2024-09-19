@@ -37,9 +37,19 @@ const AuthPages = () => {
         if (response.ok) {
           const data = await response.json();
           localStorage.setItem('token', data.token);
-  
-          // Redirect to student dashboard or profile based on the response
-          window.location.href = data.redirectPath;  // Use redirectPath to navigate
+          const profileCheckResponse = await fetch('http://localhost:5000/api/profile/check-completion', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${data.token}`,
+            },
+          });
+
+          if (profileCheckResponse.ok) {
+            const profileCheckData = await profileCheckResponse.json();
+            window.location.href = profileCheckData.redirectPath; 
+          } else {
+            setError('Error checking profile completion');
+          }
         } else {
           const errorData = await response.json();
           setError(errorData.error || 'Login failed');
