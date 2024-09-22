@@ -12,9 +12,14 @@ const AdminDashboard = () => {
   const [students, setStudents] = useState([]); // State for students from the database
   const [colleges, setColleges] = useState([]);
   const [editingStudent, setEditingStudent] = useState(null);
-  const [editingCollege, setEditingCollege] = useState(null); // State for tracking the student being edited
+  const [editingCollege, setEditingCollege] = useState(null);
+  const [applications, setApplications] = useState([]); 
+
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
+
+  
+
 
   useEffect(() => {
     // Fetch student data from the backend API when the component loads
@@ -27,6 +32,9 @@ const AdminDashboard = () => {
       }
     };
 
+    const storedApplications = JSON.parse(localStorage.getItem('applications')) || [];
+    setApplications(storedApplications);
+
     const fetchColleges = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/admin/colleges/attributes');
@@ -35,11 +43,11 @@ const AdminDashboard = () => {
         console.error('Error fetching college data:', error);
       }
     };
-
+    
     fetchStudents();
     fetchColleges();
   }, []);
-
+  
 
   const handleEditClick = (student) => {
     setEditingStudent(student); // Set the selected student to be edited
@@ -108,6 +116,13 @@ const AdminDashboard = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleClear = (indexToDelete) => {
+    const updatedApplications = applications.filter((_, index) => index !== indexToDelete);
+    setApplications(updatedApplications);
+    localStorage.setItem('applications', JSON.stringify(updatedApplications));
+  };
+
 
   const collegeData = [
     { id: 1, name: 'Tech University', students: 5000, courses: ['CS', 'IT', 'Engineering'] },
@@ -195,48 +210,99 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full table-auto">
-                <thead>
-                  <tr className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                    <th className="px-4 py-2 text-left">Name</th>
-                    <th className="px-4 py-2 text-left">Email</th>
-                    <th className="px-4 py-2 text-left">Course</th>
-                    <th className="px-4 py-2 text-left">Percentile</th>
-                    <th className="px-4 py-2 text-left">Entrance Exam Marksheet</th>
-                    <th className="px-4 py-2 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((profile) => (
-                    <tr key={profile._id} className={`${darkMode ? 'border-b border-gray-700' : 'border-b'}`}>
-                      <td className="px-4 py-2">{profile.student?.name}</td> {/* Use profile.student.name */}
-                      <td className="px-4 py-2">{profile.student?.email}</td> {/* Use profile.student.email */}
-                      <td className="px-4 py-2">{profile.course}</td>
-                      <td className="px-4 py-2">{profile.percentile}</td>
-                      <td className="px-4 py-2">
-                        <a href={profile.entranceExamMarksheet} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                          View Marksheet
-                        </a>
-                      </td>
-                      <td className="px-4 py-2">
+  <table className="w-full table-auto">
+    <thead>
+      <tr className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+        <th className="px-4 py-2 text-center">Name</th>
+        <th className="px-4 py-2 text-center">Email</th>
+        <th className="px-4 py-2 text-center">Course</th>
+        <th className="px-4 py-2 text-center">Percentile</th>
+        <th className="px-4 py-2 text-center">Entrance Exam Marksheet</th>
+        <th className="px-4 py-2 text-center">Verification</th>
+        <th className="px-4 py-2 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {students.map((profile) => (
+        <tr key={profile._id} className={`${darkMode ? 'border-b border-gray-700' : 'border-b'}`}>
+          <td className="px-4 py-2 text-center">{profile.student?.name}</td>
+          <td className="px-4 py-2 text-center">{profile.student?.email}</td>
+          <td className="px-4 py-2 text-center">{profile.course}</td>
+          <td className="px-4 py-2 text-center">{profile.percentile}</td>
+          <td className="px-4 py-2 text-center">
+            <a href={profile.entranceExamMarksheet} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              View Marksheet
+            </a>
+          </td>
+          <td className="px-4 py-2 text-center">
+                      {students.verified ? (
+                        <span className="text-green-500 font-semibold">Verified</span>
+                      ) : (
                         <button
-                          className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
-                          onClick={() => handleEditClick(profile)}
+                          className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'}`}
+                          // onClick={() => handleVerifyClick(students._id)}
                         >
-                          Edit
+                          Verify
                         </button>
-                        <button
-                          className={`px-3 py-1 rounded ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
-                          onClick={() => handleDeleteClick(profile._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      )}
+                    </td>
+          <td className="px-4 py-2 text-center">
+            <button
+              className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+              onClick={() => handleEditClick(profile)}
+            >
+              Edit
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
+              onClick={() => handleDeleteClick(profile._id)}
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <br></br>
+
+  <table className="w-full table-auto">
+    <thead>
+      <tr className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+        <th className="px-4 py-2 text-center">Student Name</th>
+        <th className="px-4 py-2 text-center">Email</th>
+        <th className="px-4 py-2 text-center">Applied College</th>
+        <th className="px-4 py-2 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {applications.length === 0 ? (
+        <tr>
+          <td colSpan="4" className="text-center p-4">No applications yet</td>
+        </tr>
+      ) : (
+        applications.map((application, index) => (
+          <tr key={index} className={`${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <td className="px-4 py-2 text-center">{application.studentName}</td>
+            <td className="px-4 py-2 text-center">{application.email}</td>
+            <td className="px-4 py-2 text-center">{application.appliedCollege}</td>
+            <td className="px-4 py-2 text-center">
+              <button
+                className="bg-red-500 text-white px-2 py-1 rounded"
+                onClick={() => handleClear(index)}
+              >
+                Clear
+              </button>
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+            
           </div>
         )}
 
