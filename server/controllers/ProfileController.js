@@ -125,3 +125,26 @@ exports.getStudentData = async (req, res) => {
       res.status(400).json({ error: error.message });
     }
   };
+
+
+  exports.verifyStudent = async (req, res) => {
+    try {
+      const studentId = req.params.studentId;
+  
+      // Find the student by ID and update the verified status
+      const student = await Student.findById(studentId);
+  
+      if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
+      }
+  
+      // Update the student's verified status
+      student.verified = true;
+      await student.save();
+  
+      res.status(200).json({ message: 'Student verified successfully', student });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to verify student' });
+    }
+  };
