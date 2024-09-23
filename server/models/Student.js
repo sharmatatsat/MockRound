@@ -15,10 +15,15 @@ const studentSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
+    }, 
     profileCompleted: {
         type: Boolean,
         default: false
+    },
+    
+    verified: {
+        type: Boolean,
+        default: false 
     }
 });
 

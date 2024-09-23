@@ -157,19 +157,6 @@ exports.getCollegesWithAttributes = async (req, res) => {
     }
 };
 
-// exports.updateCollege = async (req, res) => {
-//     const { id } = req.params;
-//     try {
-//         const updatedCollege = await College.findByIdAndUpdate(id, req.body, { new: true });
-//         if (!updatedCollege) return res.status(404).json({ message: 'College not found' });
-//         res.status(200).json(updatedCollege);
-//     } catch (error) {
-//         console.error('Error updating college:', error);
-//         res.status(500).json({ message: 'Error updating college', error });
-//     }
-// };
-
-// Controller to delete a college
 exports.deleteCollege = async (req, res) => {
     const { id } = req.params;
     try {
@@ -177,6 +164,27 @@ exports.deleteCollege = async (req, res) => {
         if (!result) return res.status(404).json({ message: 'College not found' });
         res.status(200).json({ message: 'College deleted successfully' });
     } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+exports.verifyStudent = async (req, res) => {
+    try {
+        const studentId = req.params.studentId; // Ensure this matches your route param
+        const updatedStudent = await Student.findByIdAndUpdate(
+            studentId,
+            { verified: true },
+            { new: true }
+        );
+
+        if (!updatedStudent) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        res.status(200).json({ message: 'Student verified successfully', student: updatedStudent });
+    } catch (error) {
+        console.error('Error verifying student:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

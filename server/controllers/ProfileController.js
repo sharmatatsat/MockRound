@@ -117,6 +117,7 @@ exports.getStudentData = async (req, res) => {
           name: student.name,
           email: student.email,
           profileCompleted: student.profileCompleted,
+          verified:student.verified
         },
         profile: profile || {},
       });
@@ -127,24 +128,21 @@ exports.getStudentData = async (req, res) => {
   };
 
 
-  exports.verifyStudent = async (req, res) => {
+  exports.getVerifyInfo = async (req, res) => {
     try {
-      const studentId = req.params.studentId;
-  
-      // Find the student by ID and update the verified status
-      const student = await Student.findById(studentId);
-  
-      if (!student) {
-        return res.status(404).json({ error: 'Student not found' });
-      }
-  
-      // Update the student's verified status
-      student.verified = true;
-      await student.save();
-  
-      res.status(200).json({ message: 'Student verified successfully', student });
+        const { studentId } = req.params;
+
+        const student = await Student.findById(studentId).select('verified'); // Fetch only the verified field
+
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        res.status(200).json({ verified: student.verified });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to verify student' });
+        console.error('Error fetching verified status:', error);
+        res.status(500).json({ message: 'Error fetching verified status', error: error.message });
     }
-  };
+};
+
+  
