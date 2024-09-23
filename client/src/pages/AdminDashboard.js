@@ -27,8 +27,10 @@ const AdminDashboard = () => {
       try {
         const response = await axios.get('http://localhost:5000/api/admin/profiles/all'); // Adjust the endpoint as per your backend
         setStudents(response.data); // Assuming response contains student data
+        // return response.data;
       } catch (error) {
         console.error('Error fetching student data:', error);
+        // return [];
       }
     };
 
@@ -43,7 +45,39 @@ const AdminDashboard = () => {
         console.error('Error fetching college data:', error);
       }
     };
+
+
+    const fetchStudentData = async (studentId) => {
+      const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
+      if (!token) {
+        console.error("Authentication token is missing.");
+        return null;
+      }
+  
+      try {
+        const response = await fetch(`http://localhost:5000/api/profile/student-data`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch student data');
+        }
+  
+        const data = await response.json(); // Return the logged-in student's data
+        return data.student._id === studentId ? data : null; // Only return if it matches the studentId
+      } catch (error) {
+        console.error('Error fetching student data:', error.message);
+        return null; // Return null in case of error
+      }
+    };
+  
     
+
+
+    fetchStudentData();
     fetchStudents();
     fetchColleges();
   }, []);
@@ -117,6 +151,32 @@ const AdminDashboard = () => {
     });
   };
 
+  const handleVerify = async (studentId) => {
+    try {
+      console.log('Verifying student ID:', studentId); // Log to check the studentId being passed
+  
+      // Make the API call to verify the student
+      const response = await axios.put(`http://localhost:5000/api/admin/verify/${studentId}`);
+  
+      if (response.status === 200) {
+        // Update the state to reflect the verification
+        setStudents((prevStudents) =>
+          prevStudents.map((profile) =>
+            profile.student._id === studentId ? { ...profile, student: { ...profile.student, verified: true } } : profile
+          )
+        );
+        console.log('Student verified successfully');
+      } else {
+        console.error('Failed to verify student. Unexpected response:', response);
+      }
+    } catch (error) {
+      console.error('Error verifying student:', error.message); // Log the error
+    }
+  };
+
+
+
+  
   const handleClear = (indexToDelete) => {
     const updatedApplications = applications.filter((_, index) => index !== indexToDelete);
     setApplications(updatedApplications);
@@ -235,17 +295,17 @@ const AdminDashboard = () => {
             </a>
           </td>
           <td className="px-4 py-2 text-center">
-                      {students.verified ? (
-                        <span className="text-green-500 font-semibold">Verified</span>
-                      ) : (
-                        <button
-                          className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'}`}
-                          // onClick={() => handleVerifyClick(students._id)}
-                        >
-                          Verify
-                        </button>
-                      )}
-                    </td>
+  {profile.student?.verified ? (
+    <span className="text-green-500 font-semibold">Verified</span>
+  ) : (
+    <button
+      className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'}`}
+      onClick={() => handleVerify(profile.student?._id)}
+    >
+      Verify
+    </button>
+  )}
+</td>
           <td className="px-4 py-2 text-center">
             <button
               className={`mr-2 px-3 py-1 rounded ${darkMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}

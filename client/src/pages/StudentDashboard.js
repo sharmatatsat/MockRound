@@ -62,11 +62,15 @@ const StudentDashboard = () => {
   
         const data = await response.json();
         const percentile = data.profile?.percentile;
-        const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";
+        // const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";
         const phone = data.profile?.phone;
         const aadhar = data.profile?.aadhar;
         const branch = data.profile?.branch;
         const course = data.profile?.course;
+        const verified = data.student?.verified; // Fetch the verified status from student data
+      
+      // Set creditsCompleted based on the verified status
+      const creditsCompleted = verified ? "Verified" : "Pending"; 
         
         
         
