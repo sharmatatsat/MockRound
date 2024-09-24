@@ -128,21 +128,52 @@ exports.getStudentData = async (req, res) => {
   };
 
 
-  exports.getVerifyInfo = async (req, res) => {
-    try {
-        const { studentId } = req.params;
+//   exports.getVerifyInfo = async (req, res) => {
+//     try {
+//         const { studentId } = req.params;
 
-        const student = await Student.findById(studentId).select('verified'); // Fetch only the verified field
+//         const student = await Student.findById(studentId).select('verified'); // Fetch only the verified field
 
-        if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
-        }
+//         if (!student) {
+//             return res.status(404).json({ message: 'Student not found' });
+//         }
 
-        res.status(200).json({ verified: student.verified });
-    } catch (error) {
-        console.error('Error fetching verified status:', error);
-        res.status(500).json({ message: 'Error fetching verified status', error: error.message });
+//         res.status(200).json({ verified: student.verified });
+//     } catch (error) {
+//         console.error('Error fetching verified status:', error);
+//         res.status(500).json({ message: 'Error fetching verified status', error: error.message });
+//     }
+// };
+
+
+exports.updateStudentInfo = async (req, res) => {
+  const { name, email, phone, aadhar, branch, course } = req.body;
+  const studentId = req.user.id; 
+
+  try {
+    
+    if (!name || !email || !branch || !course) {
+      return res.status(400).json({ error: 'All fields are required.' });
     }
+
+    const updatedStudent = await Student.findByIdAndUpdate(
+      studentId,
+      { name, email, phone, aadhar },
+      { new: true } 
+    );
+
+    await Profile.findOneAndUpdate(
+      { student: studentId },
+      { branch, course },
+      { new: true }
+    );
+
+    // Respond with the updated student information
+    return res.status(200).json(updatedStudent);
+  } catch (error) {
+    console.error('Error updating student info:', error.message);
+    return res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
 };
 
   
