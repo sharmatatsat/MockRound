@@ -81,7 +81,7 @@ const AdminDashboard = () => {
     fetchColleges();
   }, []);
   
-
+  console.log('College data state:', colleges);
   const handleEditClick = (student) => {
     setEditingStudent(student); 
   };
@@ -183,18 +183,18 @@ const AdminDashboard = () => {
   };
 
 
-  const collegeData = [
-    { id: 1, name: 'Tech University', students: 5000, courses: ['CS', 'IT', 'Engineering'] },
-    { id: 2, name: 'Liberal Arts College', students: 3000, courses: ['Literature', 'History', 'Philosophy'] },
-    { id: 3, name: 'Medical School', students: 2000, courses: ['Medicine', 'Nursing', 'Pharmacy'] },
-  ];
+  // const collegeData = [
+  //   { id: 1, name: 'Tech University', students: 5000, courses: ['CS', 'IT', 'Engineering'] },
+  //   { id: 2, name: 'Liberal Arts College', students: 3000, courses: ['Literature', 'History', 'Philosophy'] },
+  //   { id: 3, name: 'Medical School', students: 2000, courses: ['Medicine', 'Nursing', 'Pharmacy'] },
+  // ];
 
   const chartData = {
-    labels: collegeData.map(college => college.name),
+    labels: colleges.map(college => college.collegeName),  // Use collegeName for labels
     datasets: [
       {
-        label: 'Number of Students',
-        data: collegeData.map(college => college.students),
+        label: 'Max Student Criteria',
+        data: colleges.map(college => college.maxCriteria),  // Use maxCriteria for data
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -210,10 +210,13 @@ const AdminDashboard = () => {
       },
       title: {
         display: true,
-        text: 'Student Enrollment by College',
+        text: 'Max Student Criteria by College',
       },
     },
   };
+
+
+
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
@@ -371,7 +374,11 @@ const AdminDashboard = () => {
             <FaUniversity className="mr-2" /> College Data
           </h2>
           <div className="overflow-x-auto">
-            <Bar data={chartData} options={chartOptions} />
+          {colleges.length > 0 ? (
+        <Bar data={chartData} options={chartOptions} />
+      ) : (
+        <p>Loading chart data...</p>
+      )}x
           </div>
           <div className="mt-8">
             <h3 className="text-xl font-bold mb-4">College List</h3>
@@ -416,7 +423,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Render the Edit Modal or Form */}
       {editingCollege && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg">
