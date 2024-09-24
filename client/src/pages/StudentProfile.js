@@ -203,15 +203,15 @@ const StudentProfile = () => {
       });
   
       if (!response.ok) {
-        const errorData = await response.json();  // Get error message from response
+        const errorData = await response.json();  
         throw new Error(errorData.error || 'Failed to submit profile');
       }
   
       const result = await response.json();
   
-      // Handle redirection based on backend response
+     
       if (result.redirect) {
-        navigate(result.redirect);  // Use the redirect URL from the response
+        navigate(result.redirect);  
       } else {
         console.log('Profile submitted:', result);
       }
@@ -249,23 +249,6 @@ const StudentProfile = () => {
             {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
           </div>
 
-          {/* <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <div className="relative">
-              <FiMail className="absolute top-3 left-3 text-gray-400" />
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={profile.email}
-                onChange={handleChange}
-                className={`pl-10 w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="you@example.com"
-              />
-            </div>
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-          </div> */}
-
           <div>
             <label htmlFor="aadhar" className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
             <div className="relative">
@@ -294,7 +277,7 @@ const StudentProfile = () => {
                   name="tenth"
                   value={profile.marks.tenth}
                   onChange={handleMarksChange}
-                  className={`pl-10 w-full p-2 border rounded-md focus:ring-2                   focus:ring-indigo-500 ${errors.tenth ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`pl-10 w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.tenth ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="85"
                   min="0"
                   max="100"
@@ -424,24 +407,6 @@ const StudentProfile = () => {
               ))}
             </select>
           </div>
-
-          {/* <div>
-            <label htmlFor="caste" className="block text-sm font-medium text-gray-700 mb-1">Caste Category</label>
-            <select
-              id="caste"
-              name="caste"
-              value={profile.caste}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Select Caste</option>
-              <option value="General">General</option>
-              <option value="OBC">OBC</option>
-              <option value="SC">SC</option>
-              <option value="ST">ST</option>
-            </select>
-          </div> */}
-
           <button
             type="submit"
             className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700"

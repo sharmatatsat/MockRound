@@ -1,21 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import editModal from '../components/EditModal.js';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import {branches,courses} from '../data.js';
+// import {branches,courses} from '../data.js';
+
+const branches = [
+  'Engineering & Technology',
+  'Science',
+  'Commerce',
+  'Arts & Humanities',
+  'Management',
+  'Medicine & Health Sciences',
+  'Law',
+  'Design & Arts',
+  'Architecture',
+  'Agriculture',
+  'Education',
+  'Hospitality & Travel',
+];
+
+const subjects = {
+  'Engineering & Technology': [
+    'Computer Science Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering',
+    'Electronics and Communication Engineering',
+    'Information Technology',
+    'Chemical Engineering',
+    'Biotechnology',
+  ],
+  'Science': ['BSc Physics', 'BSc Chemistry', 'BSc Biology'],
+  'Commerce': ['BCom General', 'BCom Accounting', 'BCom Finance'],
+  'Arts & Humanities': [
+    'BA English',
+    'BA History',
+    'BA Political Science',
+    'BA Sociology',
+    'BA Philosophy',
+  ],
+  'Management': [
+    'BBA (Bachelor of Business Administration)',
+    'BMS (Bachelor of Management Studies)',
+    'BBM (Bachelor of Business Management)',
+    'BCom in Management',
+  ],
+  'Medicine & Health Sciences': [
+    'MBBS (Bachelor of Medicine, Bachelor of Surgery)',
+    'BDS (Bachelor of Dental Surgery)',
+    'BAMS (Bachelor of Ayurveda, Medicine, and Surgery)',
+    'BHMS (Bachelor of Homeopathic Medicine and Surgery)',
+    'BPT (Bachelor of Physiotherapy)',
+  ],
+  'Law': [
+    'LLB (Bachelor of Laws)',
+    'BA LLB (Integrated Program in Law)',
+    'BBA LLB (Integrated Program in Law)',
+    'LLM (Master of Laws)',
+  ],
+  'Design & Arts': ['BDes (Bachelor of Design)', 'BFA (Bachelor of Fine Arts)', 'BArch (Bachelor of Architecture)', 'BVA (Bachelor of Visual Arts)'],
+  'Architecture': ['BArch (Bachelor of Architecture)', 'BPlan (Bachelor of Planning)'],
+  'Agriculture': ['BSc Agriculture', 'BSc Horticulture', 'BSc Forestry', 'BSc Animal Husbandry'],
+  'Education': ['BEd (Bachelor of Education)', 'BA BEd (Integrated Program in Education)', 'BSc BEd (Integrated Program in Education)'],
+  'Hospitality & Travel': ['BHM (Bachelor of Hotel Management)', 'BTTM (Bachelor of Travel and Tourism Management)', 'BBA in Hospitality Management', 'BSc in Hospitality and Catering Management'],
+};
 
 const StudentDashboard = () => {
   const [highContrast, setHighContrast] = useState(false);
   const [courses, setCourses] = useState([]); // For eligible colleges
   const [studentInfo, setStudentInfo] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState(studentInfo.branch || '');
+  const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courseOptions, setCourseOptions] = useState([]);
-  // const [appliedColleges, setAppliedColleges] = useState([]);
+ 
   const openModal = () => {
     setModalOpen(true);
   };
@@ -23,12 +83,12 @@ const StudentDashboard = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
+  
   const [notifications, setNotifications] = useState([
     { id: 1, message: 'Registration for next semester opens tomorrow' },
     { id: 2, message: 'New scholarship opportunities available' },
 
   ]);
-  // const [availableCourses, setAvailableCourses] = useState([]); 
   const navigate = useNavigate();
   
  
@@ -62,15 +122,12 @@ const StudentDashboard = () => {
   
         const data = await response.json();
         const percentile = data.profile?.percentile;
-        // const creditsCompleted = data.profile?.creditsCompleted ? "Verified" : "Pending";
         const phone = data.profile?.phone;
         const aadhar = data.profile?.aadhar;
         const branch = data.profile?.branch;
         const course = data.profile?.course;
-        const verified = data.student?.verified; // Fetch the verified status from student data
-      
-      // Set creditsCompleted based on the verified status
-      const creditsCompleted = verified ? "Verified" : "Pending"; 
+        const verified = data.student?.verified;
+        const creditsCompleted = verified ? "Verified" : "Pending"; 
         
         
         
@@ -86,8 +143,8 @@ const StudentDashboard = () => {
           course: course || '' 
         });
         setSelectedBranch(branch || ''); // Set the initial selected branch
-        setCourseOptions(course[branches] || []);
-        setSelectedCourse(course || ''); 
+        setCourseOptions(courses[branches] || []);
+        setSelectedCourse(courses || ''); 
        
       
         setProgressData([
@@ -97,7 +154,7 @@ const StudentDashboard = () => {
           { name: 'Current', percentile: percentile || 0 }, // Ensure percentile is a number
         ]);
   
-        // Fetch eligible colleges
+    if(verified){
         if (percentile !== undefined) {
           const collegeResponse = await fetch('http://localhost:5000/api/colleges/entries');
           if (!collegeResponse.ok) {
@@ -108,52 +165,104 @@ const StudentDashboard = () => {
           const eligibleColleges = colleges.filter(college => college.courseCutoffs <= percentile);
           setCourses(eligibleColleges);
         }
+  }
+
       } catch (error) {
         console.error('Error fetching student data:', error.message);
         navigate('/student/login');
       }
     };
 
+
     
   
     fetchStudentData();
   }, [navigate]);
   
+  const handleEditStudent = async (e) => {
+    e.preventDefault();
+
+    const updatedData = {
+      name: studentInfo.name,
+      email: studentInfo.email,
+      phone: studentInfo.phone,
+      aadhar: studentInfo.aadhar,
+      branch: selectedBranch,
+      course: selectedCourse,
+    };
+
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/save', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update student data');
+      }
+
+      const data = await response.json();
+      setStudentInfo({
+        ...studentInfo,
+        ...updatedData,
+      });
+      closeModal();
+      alert('Student information updated successfully!');
+    } catch (error) {
+      console.error('Error updating student data:', error.message);
+      alert('Failed to update student data. Please try again.');
+    }
+  };
+
   
   const handleBranchChange = (e) => {
-    const newBranch = e.target.value;
-    console.log("New branch selected:", newBranch); // Check value here
-
-    // Test with hardcoded value
-    const testBranch = 'Science'; // Use a hardcoded branch for testing
-    console.log("Available courses for branch:", courses[testBranch]); // Should log the courses for Science
-
+    const newBranch = e.target.value.trim(); 
+  
+    const normalizedBranch = Object.keys(subjects).find(
+      (key) => key.toLowerCase() === newBranch.toLowerCase()
+    );
+  
+    console.log("Normalized branch:", normalizedBranch); 
+    const branchSubjects = subjects[normalizedBranch]; 
+    console.log("Subjects for branch:", branchSubjects); 
+  
+    if (!branchSubjects) {
+      console.warn(`No subjects found for branch: ${newBranch}`);
+    }
+  
     setSelectedBranch(newBranch);
-    setCourseOptions(courses[newBranch] || []); 
+    setCourseOptions(branchSubjects || []); 
     setSelectedCourse('');
     setStudentInfo((prevInfo) => ({
-        ...prevInfo,
-        branch: newBranch,
-        course: ''  
+      ...prevInfo,
+      branch: newBranch,
+      course: '',
     }));
-};
-  const handleCourseChange = (e) => {
-    const newCourse = e.target.value;
-    console.log("Selected course:", newCourse);
-    setSelectedCourse(newCourse);
+  };
   
+
+  const handleSubjectChange = (e) => { 
+    const newSubject = e.target.value; 
+    console.log("Selected subject:", newSubject); 
+  
+    setSelectedCourse(newSubject); 
     setStudentInfo((prevInfo) => ({
       ...prevInfo,
-      course: newCourse
+      course: newSubject, 
     }));
   };
 
-
   const [appliedColleges, setAppliedColleges] = useState(() => {
     const applications = JSON.parse(localStorage.getItem('applications')) || [];
-    // Filter applications based on the current user's email
     return applications
-      .filter(app => app.email === studentInfo.email) // Use the logged-in user's email
+      .filter(app => app.email === studentInfo.email) 
       .map(app => app.appliedCollege);
   });
 
@@ -161,11 +270,8 @@ const StudentDashboard = () => {
     const studentName = studentInfo.name;
     const appliedCollege = college.collegeName;
     const email = studentInfo.email;
-  
-    // Get the current applications from localStorage
     const applications = JSON.parse(localStorage.getItem('applications')) || [];
-  
-    // Check if the student has already applied to this college
+    
     const alreadyApplied = applications.some(
       (application) => application.appliedCollege === appliedCollege && application.email === email
     );
@@ -175,15 +281,12 @@ const StudentDashboard = () => {
       return;
     }
   
-    // Add the new application
     applications.push({ studentName, appliedCollege, email });
   
-    // Store the updated applications back to localStorage
     localStorage.setItem('applications', JSON.stringify(applications));
   
     alert(`You have successfully applied to ${appliedCollege}`);
   
-    // Update the applied colleges state
     setAppliedColleges((prev) => [...prev, appliedCollege]);
   };
   
@@ -218,6 +321,8 @@ const StudentDashboard = () => {
         }
       },
     });
+
+    
   
     return (
       <div
@@ -227,7 +332,6 @@ const StudentDashboard = () => {
     <h3 className="text-lg font-semibold mb-2">{course.collegeName}</h3>
     <p className="text-sm mb-1">State: {course.state}</p>
     <p className="text-sm mb-1">City: {course.city}</p>
-    {/* <p className="text-sm mb-1">Course: {course.course}</p> */}
     <p className="text-sm mb-1">Seats Available: {course.maxCriteria}</p>
     <p className="text-sm mb-1">Approved By: {course.approvedBy}</p>
     <button
@@ -368,7 +472,7 @@ const StudentDashboard = () => {
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
             <div className="bg-white rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Edit Student Information</h2>
-              <form>
+              <form onSubmit={handleEditStudent}>
                 <label className="block mb-2">
                   Name:
                   <input type="text" defaultValue={studentInfo.name} className="border rounded p-2 w-full" />
@@ -390,38 +494,37 @@ const StudentDashboard = () => {
                   <input type="number" defaultValue={studentInfo.aadhar} className="border rounded p-2 w-full" />
                 </label>
                 <label className="block mb-2">
-          Branch:
-          <select
-            value={selectedBranch}
-            onChange={handleBranchChange}
-            className="border rounded p-2 w-full"
-          >
-            <option value="">Select Branch</option>
-            {branches.map((branch, index) => (
-              <option key={index} value={branch}>
-                {branch}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="mb-4">
-            <label className="block mb-2">Course</label>
-            <select
-              name="course"
-              value={selectedCourse|| ''}
-              onChange={handleCourseChange}
-              className="border rounded w-full p-2"
-            >
-              <option value="">Select Course</option>
-              {courseOptions.map((course, index) => (
-                <option key={index} value={course}>
-                  {course}
-                </option>
-              ))}
-            </select>
+  Branch:
+  <select
+    value={selectedBranch}
+    onChange={handleBranchChange}
+    className="border rounded p-2 w-full"
+  >
+    <option value="">Select Branch</option>
+    {branches.map((branch, index) => (
+      <option key={index} value={branch}>
+        {branch}
+      </option>
+    ))}
+  </select>
+</label>
+<div className="mb-4">
+  <label className="block mb-2">Subject</label>
+  <select
+    name="subjects" 
+    value={selectedCourse || ''} 
+    onChange={handleSubjectChange}
+    className="border rounded w-full p-2"
+  >
+    <option value="">Select Course</option>
+    {courseOptions.map((subject, index) => (
+      <option key={index} value={subject}>
+        {subject}
+      </option>
+    ))}
+  </select>
           </div>
 
-                {/* Add more fields as needed */}
                 <div className="flex justify-end mt-4">
                   <button type="button" onClick={closeModal} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
                   <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">Save</button>

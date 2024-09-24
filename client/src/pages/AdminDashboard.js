@@ -66,11 +66,11 @@ const AdminDashboard = () => {
           throw new Error('Failed to fetch student data');
         }
   
-        const data = await response.json(); // Return the logged-in student's data
-        return data.student._id === studentId ? data : null; // Only return if it matches the studentId
+        const data = await response.json(); 
+        return data.student._id === studentId ? data : null; 
       } catch (error) {
         console.error('Error fetching student data:', error.message);
-        return null; // Return null in case of error
+        return null; 
       }
     };
   
