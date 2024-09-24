@@ -149,7 +149,7 @@ exports.getStudentById = async (req, res) => {
 exports.getCollegesWithAttributes = async (req, res) => {
     try {
         // Fetch colleges with specific attributes
-        const colleges = await College.find({}, 'collegeName state city coursesAvailable courseCutoffs');
+        const colleges = await College.find({}, 'collegeName state city coursesAvailable courseCutoffs maxCriteria');
         res.status(200).json(colleges);
     } catch (error) {
         console.error('Error fetching colleges with specific attributes:', error);
