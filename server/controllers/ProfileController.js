@@ -128,24 +128,6 @@ exports.getStudentData = async (req, res) => {
   };
 
 
-//   exports.getVerifyInfo = async (req, res) => {
-//     try {
-//         const { studentId } = req.params;
-
-//         const student = await Student.findById(studentId).select('verified'); // Fetch only the verified field
-
-//         if (!student) {
-//             return res.status(404).json({ message: 'Student not found' });
-//         }
-
-//         res.status(200).json({ verified: student.verified });
-//     } catch (error) {
-//         console.error('Error fetching verified status:', error);
-//         res.status(500).json({ message: 'Error fetching verified status', error: error.message });
-//     }
-// };
-
-
 exports.updateStudentInfo = async (req, res) => {
   const { name, email, phone, aadhar, branch, course } = req.body;
   const studentId = req.user.id; 
