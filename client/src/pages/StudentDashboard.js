@@ -4,7 +4,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-// import {branches,courses} from '../data.js';
 
 const branches = [
   'Engineering & Technology',

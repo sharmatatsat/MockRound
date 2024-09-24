@@ -93,6 +93,7 @@ const courses = {
     'BSc in Hospitality and Catering Management'
   ]
 };
+const MAX_FILE_SIZE_MB = 2;
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState({
@@ -142,9 +143,23 @@ const StudentProfile = () => {
     validateField(name, value);
   };
 
-  const handleFileChange = (e) => {
+ const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setProfile({ ...profile, [name]: files[0] });
+    const file = files[0];
+    let error = '';
+
+    if (file && file.type !== "application/pdf") {
+      error = "File must be in PDF format";
+    } 
+    else if (file && file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      error = `File size exceeds ${MAX_FILE_SIZE_MB} MB limit`;
+    }
+
+    setErrors({ ...errors, [name]: error });
+
+    if (!error) {
+      setProfile({ ...profile, [name]: file });
+    }
   };
 
   const validateField = (name, value) => {
@@ -178,15 +193,13 @@ const StudentProfile = () => {
     const formData = new FormData();
     formData.append('phone', profile.phone);
     formData.append('aadhar', profile.aadhar);
-    
-    // Correctly structure the marks fields
     formData.append('marks[tenth]', profile.marks.tenth); 
     formData.append('marks[twelfth]', profile.marks.twelfth);
     formData.append('percentile', profile.percentile);
     formData.append('branch', profile.branch);
     formData.append('course', profile.course);
     
-    // Append files
+  
     if (profile.tenthMarksheet) formData.append('tenthMarksheet', profile.tenthMarksheet);
     if (profile.twelfthMarksheet) formData.append('twelfthMarksheet', profile.twelfthMarksheet);
     if (profile.entranceExamMarksheet) formData.append('entranceExamMarksheet', profile.entranceExamMarksheet);
@@ -295,9 +308,11 @@ const StudentProfile = () => {
                   id="tenthMarksheet"
                   name="tenthMarksheet"
                   onChange={handleFileChange}
+                  accept="application/pdf"
                   className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                 />
               </div>
+              {errors.tenthMarksheet && <p className="text-red-500 text-xs mt-1">{errors.tenthMarksheet}</p>}
             </div>
           </div>
 
@@ -330,9 +345,11 @@ const StudentProfile = () => {
                   id="twelfthMarksheet"
                   name="twelfthMarksheet"
                   onChange={handleFileChange}
+                  accept="application/pdf"
                   className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                 />
               </div>
+              {errors.twelfthMarksheet && <p className="text-red-500 text-xs mt-1">{errors.twelfthMarksheet}</p>}
             </div>
           </div>
 
@@ -345,9 +362,11 @@ const StudentProfile = () => {
                 id="entranceExamMarksheet"
                 name="entranceExamMarksheet"
                 onChange={handleFileChange}
+                accept="application/pdf"
                 className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
               />
             </div>
+            {errors.entranceExamMarksheet && <p className="text-red-500 text-xs mt-1">{errors.entranceExamMarksheet}</p>}
           </div>
 
           <div>
@@ -369,7 +388,7 @@ const StudentProfile = () => {
             {errors.percentile && <p className="text-red-500 text-xs mt-1">{errors.percentile}</p>}
           </div>
 
-          {/* New branch dropdown */}
+
           <div>
             <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-1">Branch</label>
             <select
@@ -387,8 +406,6 @@ const StudentProfile = () => {
               ))}
             </select>
           </div>
-
-          {/* New course dropdown */}
           <div>
             <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-1">Course</label>
             <select

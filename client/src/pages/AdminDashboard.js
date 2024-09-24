@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaGraduationCap, FaUniversity, FaChartBar, FaUserGraduate, FaSort, FaFilter, FaMoon, FaSun, FaEdit,FaTrash } from 'react-icons/fa';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios'; 
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -22,12 +22,11 @@ const AdminDashboard = () => {
 
 
   useEffect(() => {
-    // Fetch student data from the backend API when the component loads
+   
     const fetchStudents = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/admin/profiles/all'); // Adjust the endpoint as per your backend
-        setStudents(response.data); // Assuming response contains student data
-        // return response.data;
+        const response = await axios.get('http://localhost:5000/api/admin/profiles/all'); 
+        setStudents(response.data);
       } catch (error) {
         console.error('Error fetching student data:', error);
         // return [];
@@ -84,13 +83,13 @@ const AdminDashboard = () => {
   
 
   const handleEditClick = (student) => {
-    setEditingStudent(student); // Set the selected student to be edited
+    setEditingStudent(student); 
   };
 
   const handleDeleteClick = async (studentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/profiles/${studentId}`); // Adjust the endpoint
-      setStudents(students.filter(student => student._id !== studentId)); // Update the state to remove the deleted student
+      await axios.delete(`http://localhost:5000/api/admin/profiles/${studentId}`); 
+      setStudents(students.filter(student => student._id !== studentId)); 
     } catch (error) {
       console.error('Error deleting student:', error);
     }
@@ -117,9 +116,9 @@ const AdminDashboard = () => {
       return;
     }
     try {
-      await axios.put(`http://localhost:5000/api/admin/colleges/${editingCollege._id}`, editingCollege); // Use _id here
-      setColleges(colleges.map(college => college._id === editingCollege._id ? editingCollege : college)); // Update the college data in state
-      setEditingCollege(null); // Reset editing state
+      await axios.put(`http://localhost:5000/api/admin/colleges/${editingCollege._id}`, editingCollege); 
+      setColleges(colleges.map(college => college._id === editingCollege._id ? editingCollege : college)); 
+      setEditingCollege(null); 
     } catch (error) {
       console.error('Error saving college data:', error);
     }
@@ -136,8 +135,8 @@ const AdminDashboard = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/admin/profiles/${editingStudent._id}`, editingStudent); // Adjust the endpoint
-      setStudents(students.map(student => student._id === editingStudent._id ? editingStudent : student)); // Update the student data in state
+      await axios.put(`http://localhost:5000/api/admin/profiles/${editingStudent._id}`, editingStudent); 
+      setStudents(students.map(student => student._id === editingStudent._id ? editingStudent : student)); 
       setEditingStudent(null); // Reset editing state
     } catch (error) {
       console.error('Error saving student data:', error);
