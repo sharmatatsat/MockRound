@@ -183,18 +183,13 @@ const AdminDashboard = () => {
   };
 
 
-  // const collegeData = [
-  //   { id: 1, name: 'Tech University', students: 5000, courses: ['CS', 'IT', 'Engineering'] },
-  //   { id: 2, name: 'Liberal Arts College', students: 3000, courses: ['Literature', 'History', 'Philosophy'] },
-  //   { id: 3, name: 'Medical School', students: 2000, courses: ['Medicine', 'Nursing', 'Pharmacy'] },
-  // ];
 
   const chartData = {
-    labels: colleges.map(college => college.collegeName),  // Use collegeName for labels
+    labels: colleges.map(college => college.collegeName),  
     datasets: [
       {
         label: 'Max Student Criteria',
-        data: colleges.map(college => college.maxCriteria),  // Use maxCriteria for data
+        data: colleges.map(college => college.maxCriteria), 
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,

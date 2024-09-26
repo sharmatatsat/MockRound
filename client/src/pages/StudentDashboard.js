@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook,FaSun,FaMoon,FaFilter,} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const branches = [
@@ -74,6 +74,12 @@ const StudentDashboard = () => {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courseOptions, setCourseOptions] = useState([]);
+  const [selectedState, setSelectedState] = useState(''); 
+  const [showFilter, setShowFilter] = useState(false);  
+  const [selectedCollege, setSelectedCollege] = useState(''); 
+  const [selectedCity, setSelectedCity] = useState('');
+  const [showCollegeDropdown, setShowCollegeDropdown] = useState(false); 
+  const [spotRoundDate, setSpotRoundDate] = useState(''); 
  
   const openModal = () => {
     setModalOpen(true);
@@ -118,7 +124,7 @@ const StudentDashboard = () => {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to fetch student data');
         }
-  
+        
         const data = await response.json();
         const percentile = data.profile?.percentile;
         const phone = data.profile?.phone;
@@ -173,11 +179,58 @@ const StudentDashboard = () => {
     };
 
 
+    const fetchColleges = async () => {
+      const response = await fetch('http://localhost:5000/api/colleges/entries');
+      const data = await response.json();
+      setCourses(data); 
+    };
     
-  
+    fetchColleges();
     fetchStudentData();
   }, [navigate]);
+
+  const handleCollegeSelection = (e) => {
+    const selected = e.target.value;
+    setSelectedCollege(selected);
+    const college = courses.find((course) => course.collegeName === selected);
+    setSpotRoundDate(college ? college.spotRoundDates : 'No date available');
+  };
   
+  const applyStateAndCityFilter = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Build query string based on selectedState and selectedCity
+      let query = '';
+      if (selectedState) {
+        query += `state=${selectedState}`;
+      }
+      if (selectedCity) {
+        if (query.length > 0) {
+          query += '&';
+        }
+        query += `city=${selectedCity}`;
+      }
+      
+      // Send the request with both state and city in the query
+      const response = await fetch(`http://localhost:5000/api/profile/filtercolleges?${query}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch filtered colleges');
+      }
+  
+      const data = await response.json();
+      setCourses(data.colleges); 
+    } catch (error) {
+      console.error('Error fetching filtered colleges:', error.message);
+    }
+  };
+  
+
   const handleEditStudent = async (e) => {
     e.preventDefault();
 
@@ -356,9 +409,9 @@ const StudentDashboard = () => {
             <h1 className="text-2xl font-bold">Student Dashboard</h1>
             <button
               onClick={toggleHighContrast}
-              className={`px-4 py-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-white text-black'}`}
+              className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
             >
-              Toggle High Contrast
+             {highContrast ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
             </button>
           </div>
         </header>
@@ -395,15 +448,75 @@ const StudentDashboard = () => {
               </section>
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
-                <h2 className="text-xl font-semibold mb-4">Eligible Colleges</h2>
-                {courses.length > 0 ? (
-                  courses.map((course, index) => (
-                    <CourseCard key={course.id} course={course} index={index} />
-                  ))
-                ) : (
-                  <p>No eligible colleges available.</p>
-                )}
-              </section>
+  <h2 className="text-xl font-semibold mb-4">
+    Eligible Colleges
+    <button 
+      className={`p-2 m-4 rounded ${highContrast ? 'bg-gray-200 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`} 
+      onClick={() => setShowFilter(!showFilter)} 
+      aria-label="Filter colleges">
+      <FaFilter />
+    </button>
+  </h2>
+
+  {/* State Dropdown for Filtering */}
+  {showFilter && (
+    <div className="my-4">
+      <select
+        value={selectedState}
+        onChange={(e) => setSelectedState(e.target.value)} 
+        className="p-2 border rounded"
+      >
+        <option value="">Select State</option>
+        <option value="Maharashtra">Maharashtra</option>
+        <option value="karnataka">karnataka</option>
+        <option value="Uttar Pradesh">Uttar Pradesh</option>
+      </select>
+      <select
+      value={selectedCity}
+      onChange={(e) => setSelectedCity(e.target.value)} 
+      className="ml-4 p-2 border rounded"
+    >
+      <option value="">Select City</option>
+      {selectedState === "Maharashtra" && (
+        <>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Pune">Pune</option>
+          <option value="Nagpur">Nagpur</option>
+        </>
+      )}
+      {selectedState === "Karnataka" && (
+        <>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Mysore">Mysore</option>
+          <option value="Mangalore">Mangalore</option>
+        </>
+      )}
+      {selectedState === "Uttar Pradesh" && (
+        <>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Kanpur">Kanpur</option>
+          <option value="Varanasi">Varanasi</option>
+        </>
+      )}
+    </select>
+
+      <button
+        onClick={applyStateAndCityFilter}
+        className="ml-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Apply Filter
+      </button>
+    </div>
+  )}
+
+  {courses.length > 0 ? (
+    courses.map((course, index) => (
+      <CourseCard key={course.id} course={course} index={index} />
+    ))
+  ) : (
+    <p>No eligible colleges available.</p>
+  )}
+</section>
             </div>
 
             <div>
@@ -448,11 +561,39 @@ const StudentDashboard = () => {
                     <FaPaperPlane className="mr-2" /> Submit
                   </button>
                   <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-yellow-500 text-white'}`}>
-                    <FaEnvelope className="mr-2" /> Email College
+                    <FaEnvelope className="mr-2" /> Status
                   </button>
-                  <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-purple-500 text-white'}`}>
-                    <FaCalendar className="mr-2" /> Check Dates
-                  </button>
+                  <button
+        className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-purple-500 text-white'}`}
+        onClick={() => setShowCollegeDropdown(!showCollegeDropdown)} // Toggle dropdown visibility
+      >
+        <FaCalendar className="mr-2" /> Check Dates
+      </button>
+
+      {/* Dropdown to select eligible colleges */}
+      {showCollegeDropdown && (
+        <div className="my-4">
+          <select
+            value={selectedCollege}
+            onChange={handleCollegeSelection}
+            className="p-2 border rounded"
+          >
+            <option value="">Select College</option>
+            {courses.map((college) => (
+              <option key={college._id} value={college.collegeName}>
+                {college.collegeName}
+              </option>
+            ))}
+          </select>
+
+          {/* Display the spot round date */}
+          {selectedCollege && (
+            <div className="mt-4 p-2 bg-gray-100 border rounded">
+              <p>Spot Round Date: {spotRoundDate}</p>
+            </div>
+          )}
+        </div>
+      )}
                 </div>
               </section>
 
@@ -462,7 +603,7 @@ const StudentDashboard = () => {
 
         <footer className={`py-4 ${highContrast ? 'bg-white text-black' : 'bg-gray-200 text-gray-600'}`}>
           <div className="container mx-auto px-4 text-center">
-            <p>&copy; 2024 University Name. All rights reserved.</p>
+            <p>&copy; 2024 VidyarthiMitra.org. All rights reserved.</p>
           </div>
         </footer>
       </div>

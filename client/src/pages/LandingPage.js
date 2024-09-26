@@ -99,7 +99,7 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Contact Section */}
+           
             <section id="contact" className="py-20 bg-gray-100">
                 <div className="container mx-auto text-center">
                     <h2 className="text-3xl font-bold mb-8">Get in Touch</h2>
@@ -113,11 +113,9 @@ const LandingPage = () => {
                     </form>
                 </div>
             </section>
-
-            {/* Footer */}
             <footer className="bg-gray-800 text-white py-8">
                 <div className="container mx-auto text-center">
-                    <p>&copy; 2023 VidyarthiMitra. All rights reserved.</p>
+                    <p>&copy; 2024 VidyarthiMitra. All rights reserved.</p>
                 </div>
             </footer>
         </div>
