@@ -200,3 +200,27 @@ exports.findColleges = async (req, res) => {
         res.status(500).json({ message: 'Error fetching colleges', error });
     }
 };
+
+
+// Controller function for filtering colleges by state
+exports.filterCollegesByStateAndCity = async (req, res) => {
+    try {
+      const { state, city } = req.query;
+  
+      // Filter colleges based on state and city
+      const filter = {};
+      if (state) filter.state = state;
+      if (city) filter.city = city;
+  
+      const eligibleColleges = await College.find(filter);
+  
+      res.status(200).json({ colleges: eligibleColleges });
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching colleges" });
+    }
+  };
+  
+  
+  // Route for filtering colleges by state
+  
+  

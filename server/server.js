@@ -9,6 +9,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profileRoutes');
 const fileRoutes = require('./routes/fileRoutes'); 
+// const contactRoutes = require('./routes/contact'); 
 const path = require('path');
 
 dotenv.config();
@@ -36,10 +37,10 @@ app.set('jwt_secret', process.env.JWT_SECRET || 'secretkey');
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);
-// app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/files', fileRoutes); 
+// app.use('/api', contactRoutes); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -16,6 +16,7 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true
     }, 
+
     profileCompleted: {
         type: Boolean,
         default: false
