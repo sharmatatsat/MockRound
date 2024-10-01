@@ -310,18 +310,22 @@ const CollegeProfilePage = () => {
           </div>
 
           <div>
-            <label htmlFor="approvedBy" className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
-            <input
-              type="text"
-              id="approvedBy"
-              name="approvedBy"
-              value={profile.approvedBy}
-              onChange={handleChange}
-              className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.approvedBy ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="Approved By"
-            />
-            {errors.approvedBy && <p className="text-red-500 text-xs mt-1">{errors.approvedBy}</p>}
-          </div>
+  <label htmlFor="approvedBy" className="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+  <select
+    id="approvedBy"
+    name="approvedBy"
+    value={profile.approvedBy}
+    onChange={handleChange}
+    className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 ${errors.approvedBy ? 'border-red-500' : 'border-gray-300'}`}
+  >
+    <option value="" disabled>Select an option</option>
+    <option value="UGC">UGC</option>
+    <option value="NIRF">NIRF</option>
+    <option value="AICTE">AICTE</option>
+  </select>
+  {errors.approvedBy && <p className="text-red-500 text-xs mt-1">{errors.approvedBy}</p>}
+</div>
+
         </div>
 
         <button

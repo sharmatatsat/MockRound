@@ -3,6 +3,8 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FaUser, FaEnvelope, FaGraduationCap, FaBell, FaCalendar, FaPaperPlane, FaBook,FaSun,FaMoon,FaFilter,} from 'react-icons/fa';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 const branches = [
@@ -385,7 +387,7 @@ const StudentDashboard = () => {
     <p className="text-sm mb-1">Approved By: {course.approvedBy}</p>
     <button
   onClick={() => handleApplyNow(course)}
-  className={`mt-4 py-2 px-4 rounded text-white ${
+  className={`mt-4 py-2 px-2 rounded text-white ${
     appliedColleges.includes(course.collegeName)
       ? 'bg-gray-400 cursor-not-allowed'
       : 'bg-blue-500 hover:bg-blue-600'
@@ -403,7 +405,7 @@ const StudentDashboard = () => {
       <div className={`min-h-screen ${highContrast ? 'bg-black text-white' : 'bg-gray-100'}`}>
   <header className={`py-4 ${highContrast ? 'bg-white text-black' : 'bg-blue-600 text-white'}`}>
     <div className="container mx-auto px-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">Student Dashboard</h1>
+      <h1 className="text-2xl font-bold">{studentInfo.name}</h1>
       
       <div className="flex items-center space-x-4">
         <button
@@ -444,7 +446,10 @@ const StudentDashboard = () => {
                   </div>
                   <div className="flex items-center">
                    <FaBook className="mr-2" />
-                  <span>Verification: {studentInfo.creditsCompleted}</span>
+                   <span>
+  Verification : {studentInfo.creditsCompleted} 
+  <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 ml-2" />
+</span>
                   </div>
                   <div className="col-span-2 flex items-center">
                     <FaGraduationCap className="mr-2" />
@@ -539,22 +544,25 @@ const StudentDashboard = () => {
               </section>
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
-                <h2 className="text-xl font-semibold mb-4">Academic Progress</h2>
-                {progressData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={progressData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="Percentile" stroke="#8884d8" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p>No academic progress data available.</p>
-                )}
-              </section>
+  <h2 className="text-xl font-semibold mb-4">Academic Progress</h2>
+  {studentInfo.percentile ? (
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart
+        data={[{ name: 'Percentile', Percentile: studentInfo.percentile }]} // Data includes only percentile
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="Percentile" stroke="#8884d8" />
+      </LineChart>
+    </ResponsiveContainer>
+  ) : (
+    <p>No academic progress data available.</p>
+  )}
+</section>
+
 
               <section className={`mb-8 p-6 rounded-lg ${highContrast ? 'bg-white text-black' : 'bg-white shadow-md'}`}>
                 <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
@@ -565,12 +573,12 @@ const StudentDashboard = () => {
           > Edit Info
                   </button>
                   
-                  <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-green-500 text-white'}`}>
+                  {/* <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-green-500 text-white'}`}>
                     <FaPaperPlane className="mr-2" /> Submit
-                  </button>
-                  <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-yellow-500 text-white'}`}>
+                  </button> */}
+                  {/* <button className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-yellow-500 text-white'}`}>
                     <FaEnvelope className="mr-2" /> Status
-                  </button>
+                  </button> */}
                   <button
         className={`flex items-center justify-center p-2 rounded ${highContrast ? 'bg-black text-white' : 'bg-purple-500 text-white'}`}
         onClick={() => setShowCollegeDropdown(!showCollegeDropdown)} // Toggle dropdown visibility

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaRocket, FaGraduationCap, FaLaptop, FaUsers } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserGraduate, faUniversity } from '@fortawesome/free-solid-svg-icons';
 import '../index.css';
 
 const LandingPage = () => {
@@ -39,20 +41,25 @@ const LandingPage = () => {
                             <a href="#contact" onClick={(e) => smoothScroll(e, '#contact')} className="hover:text-blue-200 transition duration-300">Contact</a>
                         </li>
                         <li className="relative">
-                            <button onClick={toggleDropdown} className="hover:text-blue-200 transition duration-300 focus:outline-none">
-                                Sign in
-                            </button>
-                            {dropdownOpen && (
-                                <ul className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl">
-                                    <li className="block px-4 py-2 text-gray-800 hover:bg-blue-100">
-                                        <button onClick={() => handleSignupClick('/student/login')} className="w-full text-left">Student</button>
-                                    </li>
-                                    <li className="block px-4 py-2 text-gray-800 hover:bg-blue-100">
-                                        <button onClick={() => handleSignupClick('/college/login')} className="w-full text-left">College</button>
-                                    </li>
-                                </ul>
-                            )}
-                        </li>
+  <button onClick={toggleDropdown} className="hover:text-blue-200 transition duration-300 focus:outline-none">
+    Sign in
+  </button>
+  {dropdownOpen && (
+    <ul className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl">
+      <li className="block px-4 py-2 text-gray-800 hover:bg-blue-100">
+        <button onClick={() => handleSignupClick('/student/login')} className="w-full text-left flex items-center justify-between">
+          Student <FontAwesomeIcon icon={faUserGraduate} className="ml-2" />
+        </button>
+      </li>
+      <li className="block px-4 py-2 text-gray-800 hover:bg-blue-100">
+        <button onClick={() => handleSignupClick('/college/login')} className="w-full text-left flex items-center justify-between">
+          College <FontAwesomeIcon icon={faUniversity} className="ml-2" />
+        </button>
+      </li>
+    </ul>
+  )}
+</li>
+
                     </ul>
                 </div>
             </nav>
