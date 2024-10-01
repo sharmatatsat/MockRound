@@ -68,7 +68,7 @@ const subjects = {
 
 const StudentDashboard = () => {
   const [highContrast, setHighContrast] = useState(false);
-  const [courses, setCourses] = useState([]); // For eligible colleges
+  const [courses, setCourses] = useState([]); 
   const [studentInfo, setStudentInfo] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState('');
@@ -156,7 +156,7 @@ const StudentDashboard = () => {
           { name: 'Assessment 1', percentile: 85 },
           { name: 'Assessment 2', percentile: 90 },
           { name: 'Assessment 3', percentile: 95 },
-          { name: 'Current', percentile: percentile || 0 }, // Ensure percentile is a number
+          { name: 'Current', percentile: percentile || 0 }, 
         ]);
   
     if(verified){
@@ -179,13 +179,6 @@ const StudentDashboard = () => {
     };
 
 
-    const fetchColleges = async () => {
-      const response = await fetch('http://localhost:5000/api/colleges/entries');
-      const data = await response.json();
-      setCourses(data); 
-    };
-    
-    fetchColleges();
     fetchStudentData();
   }, [navigate]);
 
@@ -200,7 +193,6 @@ const StudentDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Build query string based on selectedState and selectedCity
       let query = '';
       if (selectedState) {
         query += `state=${selectedState}`;
@@ -212,7 +204,6 @@ const StudentDashboard = () => {
         query += `city=${selectedCity}`;
       }
       
-      // Send the request with both state and city in the query
       const response = await fetch(`http://localhost:5000/api/profile/filtercolleges?${query}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -317,6 +308,11 @@ const StudentDashboard = () => {
       .filter(app => app.email === studentInfo.email) 
       .map(app => app.appliedCollege);
   });
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token'); 
+    window.location.href = '/student/login';
+  };
 
   const handleApplyNow = (college) => {
     const studentName = studentInfo.name;
@@ -374,6 +370,7 @@ const StudentDashboard = () => {
       },
     });
 
+  
     
   
     return (
@@ -404,16 +401,27 @@ const StudentDashboard = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className={`min-h-screen ${highContrast ? 'bg-black text-white' : 'bg-gray-100'}`}>
-        <header className={`py-4 ${highContrast ? 'bg-white text-black' : 'bg-blue-600 text-white'}`}>
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Student Dashboard</h1>
-            <button
-              onClick={toggleHighContrast}
-              className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-            >
-             {highContrast ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
-            </button>
-          </div>
+  <header className={`py-4 ${highContrast ? 'bg-white text-black' : 'bg-blue-600 text-white'}`}>
+    <div className="container mx-auto px-4 flex justify-between items-center">
+      <h1 className="text-2xl font-bold">Student Dashboard</h1>
+      
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={toggleHighContrast}
+          className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+        >
+          {highContrast ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="p-2 bg-red-500 text-white rounded-[5px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500 hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
         </header>
 
         <main className="container mx-auto px-4 py-8">

@@ -81,7 +81,11 @@ const AdminDashboard = () => {
     fetchColleges();
   }, []);
   
-  console.log('College data state:', colleges);
+  const handleLogout = () => {
+    localStorage.removeItem('token'); 
+    window.location.href = '/admin/login';
+  };
+
   const handleEditClick = (student) => {
     setEditingStudent(student); 
   };
@@ -215,18 +219,26 @@ const AdminDashboard = () => {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <nav className={`p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {darkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
-          </button>
-        </div>
-      </nav>
+  <nav className={`p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
+    <div className="container mx-auto flex justify-between items-center">
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      <div className="flex items-center space-x-4"> {/* Added flex container */}
+        <button
+          onClick={toggleDarkMode}
+          className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
+        </button>
+        <button
+          onClick={handleLogout}
+          className="p-2 bg-red-500 text-white rounded-[5px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500 hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
 
       <div className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
